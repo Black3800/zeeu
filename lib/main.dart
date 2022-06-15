@@ -1,3 +1,4 @@
+import 'package:ZeeU/models/signup_state.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -19,62 +20,41 @@ Future<void> main() async {
   });
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   final User? user;
   const MyApp({Key? key, required this.user}) : super(key: key);
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  late Future<AppUser> _user;
-
-  Future<AppUser> _fetchUser() async {
-    AppUser _appUser = AppUser();
-    if (widget.user != null) {
-      FirebaseFirestore
-        .instance
-        .collection('users')
-        .doc(widget.user!.uid)
-        .get()
-        .then(
-          (DocumentSnapshot doc) {
-            final data = doc.data() as Map<String, dynamic>;
-            _appUser = AppUser.fromJson(data);
-          },
-          onError: (e) => debugPrint('Error getting document: $e')
-        );
-    }
-    return _appUser;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _user = _fetchUser();
-  }
 
   @override
   Widget build(BuildContext context) {
     final _userState = UserState();
 
-    return ChangeNotifierProvider<UserState>(
-      create: (_) => _userState,
-      child: FutureBuilder<AppUser>(
-        future: _user,
-        builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.data != null) {
-            if (snapshot.data!.uid != '') {
-              return const HomePage();
-            } else {
-              return const LoginPage();
-            }
-          } else {
-            return const CircularProgressIndicator();
-          }
-        }
-      )
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => _userState),
+        Provider(create: (_) => SignupState())
+      ],
+      child: MaterialApp(
+              title: 'Zee U',
+              initialRoute: user == null ? '/login' : '/home',
+              routes: {
+                '/login': (context) => const LoginPage(),
+                '/signup': (context) => const SignupPage(),
+                '/signup-success': (context) => const SignupSuccessPage(),
+                '/home': (context) => const HomePage(),
+              },
+              theme: ThemeData(
+                brightness: Brightness.light,
+                primarySwatch: Palette.aquamarine,
+                colorScheme: ThemeData().colorScheme.copyWith(primary: Palette.ultramarine),
+                fontFamily: GoogleFonts.roboto().fontFamily,
+                textTheme: TextTheme(
+                  headline1: GoogleFonts.roboto(fontSize: 32.0, fontWeight: FontWeight.w900),
+                  headline2: GoogleFonts.roboto(fontSize: 18.0, fontWeight: FontWeight.w600),
+                  bodyText1: GoogleFonts.roboto(fontSize: 16.0),
+                )
+              ),
+              debugShowCheckedModeBanner: false,
+            )
     );
   }
 }

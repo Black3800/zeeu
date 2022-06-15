@@ -7,7 +7,11 @@ class Palette {
     200: Color.fromRGBO(53, 53, 53, .4),
     300: Color.fromRGBO(53, 53, 53, .6),
     400: Color.fromRGBO(53, 53, 53, .8),
-    500: Color.fromRGBO(53, 53, 53, 1)
+    500: Color.fromRGBO(53, 53, 53, 1),
+    600: Color.fromRGBO(53, 53, 53, 1),
+    700: Color.fromRGBO(53, 53, 53, 1),
+    800: Color.fromRGBO(53, 53, 53, 1),
+    900: Color.fromRGBO(53, 53, 53, 1)
   });
 
   static const MaterialColor gold = MaterialColor(0xfff7cb8d, {
@@ -81,7 +85,11 @@ class Palette {
     200: Color.fromRGBO(255, 255, 255, .4),
     300: Color.fromRGBO(255, 255, 255, .6),
     400: Color.fromRGBO(255, 255, 255, .8),
-    500: Color.fromRGBO(255, 255, 255, 1)
+    500: Color.fromRGBO(255, 255, 255, 1),
+    600: Color.fromRGBO(255, 255, 255, 1),
+    700: Color.fromRGBO(255, 255, 255, 1),
+    800: Color.fromRGBO(255, 255, 255, 1),
+    900: Color.fromRGBO(255, 255, 255, 1)
   });
 
   static const MaterialColor success = MaterialColor(0xff93f582, {

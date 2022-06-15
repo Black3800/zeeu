@@ -1,5 +1,4 @@
 import 'package:ZeeU/models/app_user.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 
 class UserState extends ChangeNotifier {
