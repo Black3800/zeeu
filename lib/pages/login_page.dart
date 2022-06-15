@@ -1,10 +1,12 @@
 import 'package:ZeeU/models/app_user.dart';
 import 'package:ZeeU/models/user_state.dart';
 import 'package:ZeeU/utils/palette.dart';
+import 'package:ZeeU/widgets/gradient_button.dart';
 import 'package:ZeeU/widgets/zeeu_snackbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
@@ -75,49 +77,104 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Palette.white,
-        body: Center(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 42.5),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Image.asset(
-                    'assets/ZeeU-Logo-WhiteAlpha.png',
-                    width: 250,
-                    height: 150,
-                  ),
-                  const SizedBox(height: 50.0),
-                  TextFormField(
-                      controller: _emailController,
-                      focusNode: _emailNode,
-                      maxLength: 320,
-                      textInputAction: TextInputAction.next,
-                      onFieldSubmitted: (_) =>
-                          FocusScope.of(context).requestFocus(_passwordNode)),
-                  const SizedBox(height: 25.0),
-                  TextFormField(
-                    controller: _passwordController,
-                    focusNode: _passwordNode,
-                    // hintText: 'Password',
-                    maxLength: 100,
-                    // icon: Icons.lock_rounded,
-                    obscureText: true,
-                  ),
-                  const SizedBox(height: 50.0),
-                  // BigButton(
-                  //   text: 'Login',
-                  //   isLoading: isSubmitted,
-                  //   onPressed: handleLogin,
-                  // ),
-                  // const SizedBox(height: 25.0),
-                  // const SignUpClick(),
-                ],
-              ),
+    return SafeArea(
+      child: Scaffold(
+          body: Container(
+            height: double.infinity,
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/Bg.png'),
+                fit: BoxFit.cover
+              )
             ),
-          ),
-        ));
+            child: CustomScrollView(
+              slivers: [
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25),
+                    child: Column(
+                      children: <Widget>[
+                        Container(
+                          padding: const EdgeInsets.all(50),
+                          child: Center(
+                            child: Image.asset(
+                              'assets/ZeeU-Logo.png',
+                              width: 100,
+                              height: 100,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.all(30),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: Palette.honeydew,
+                                width: 0.5
+                              ),
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Palette.white.withOpacity(.8),
+                                  Palette.white.withOpacity(.32)
+                                  ],
+                              )
+                            ),
+                            child: Column(
+                              children: [
+                                Text('Login', style: Theme.of(context).textTheme.headline1!.apply(color: Palette.jet)),
+                                const SizedBox(height: 50),
+                                TextFormField(
+                                  controller: _emailController,
+                                  focusNode: _emailNode,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Email'
+                                  ),
+                                  textInputAction: TextInputAction.next,
+                                  onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_passwordNode)
+                                ),
+                                const SizedBox(height: 30),
+                                TextFormField(
+                                  controller: _passwordController,
+                                  focusNode: _passwordNode,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Password'
+                                  ),
+                                  obscureText: true,
+                                ),
+                                const SizedBox(height: 50),
+                                GradientButton(
+                                  onPressed: handleLogin,
+                                  text: 'Login'
+                                ),
+                                const SizedBox(height: 30),
+                                InkWell(
+                                  onTap: () {
+                                    Navigator.of(context).pushNamed('/signup');
+                                  },
+                                  child: Text(
+                                    'Sign up',
+                                    style: GoogleFonts.roboto(
+                                      fontWeight: FontWeight.w600,
+                                      decoration: TextDecoration.underline,
+                                      color: Palette.jet
+                                    )
+                                  )
+                                )
+                              ]
+                            )
+                          )
+                        )
+                      ]
+                    )
+                  )
+                )
+              ]
+            ),
+          )),
+    );
   }
 }
