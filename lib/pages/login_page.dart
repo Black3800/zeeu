@@ -39,30 +39,27 @@ class _LoginPageState extends State<LoginPage> {
           .doc('${credential.user?.uid}').get();
 
       final user = AppUser.fromJson(doc.data() ?? {});
-      
-      Provider.of<UserState>(context, listen: false).updateUser(AppUser(
-          uid: credential.user?.uid,
-          email: credential.user?.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          img: user.img));
+      user.uid = credential.user?.uid;
+      user.email = credential.user?.email;
 
       snackBar.text = "Welcome, ${user.firstName}";
       snackBar.icon = Icons.check_circle;
       snackBar.accentColor = Palette.success;
-
-      FocusScope.of(context).unfocus();
-      Navigator.of(context).pushReplacementNamed('/home');
+      
+      Provider.of<UserState>(context, listen: false).updateUser(user);
+      Navigator.of(context).pushReplacementNamed('/app');
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         // doSth
       } else if (e.code == 'wrong-password') {
         // doSth
       }
-    } finally {
       _passwordController.clear();
-      setState(() => isSubmitted = false);
-      snackBar.show(context);
+    } finally {
+      if (mounted) { 
+        setState(() => isSubmitted = false);
+        snackBar.show(context);
+      }
     }
   }
 

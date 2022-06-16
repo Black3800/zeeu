@@ -6,10 +6,10 @@ class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
   @override
-  State<HomePage> createState() => _LoginPageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _LoginPageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class _LoginPageState extends State<HomePage> {
               child: ElevatedButton(
                 onPressed: () {
                   FirebaseAuth.instance.signOut();
-                  Navigator.of(context).pushReplacementNamed('/login');
+                  Navigator.of(context).pushNamed('/logout');
                 },
                 child: const Text('logout'),
               )

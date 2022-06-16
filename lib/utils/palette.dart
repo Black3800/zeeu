@@ -91,6 +91,19 @@ class Palette {
     800: Color.fromRGBO(255, 255, 255, 1),
     900: Color.fromRGBO(255, 255, 255, 1)
   });
+  
+  static const MaterialColor gray = MaterialColor(0xff999999, {
+    50: Color.fromRGBO(153, 153, 153, .05),
+    100: Color.fromRGBO(153, 153, 153, .2),
+    200: Color.fromRGBO(153, 153, 153, .4),
+    300: Color.fromRGBO(153, 153, 153, .6),
+    400: Color.fromRGBO(153, 153, 153, .8),
+    500: Color.fromRGBO(153, 153, 153, 1),
+    600: Color.fromRGBO(153, 153, 153, 1),
+    700: Color.fromRGBO(153, 153, 153, 1),
+    800: Color.fromRGBO(153, 153, 153, 1),
+    900: Color.fromRGBO(153, 153, 153, 1)
+  });
 
   static const MaterialColor success = MaterialColor(0xff93f582, {
     50: Color(0xfff4fef3),

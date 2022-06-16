@@ -1,5 +1,8 @@
 import 'package:ZeeU/models/signup_state.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ZeeU/pages/login_page.dart';
+import 'package:ZeeU/pages/signup_page.dart';
+import 'package:ZeeU/pages/signup_success_page.dart';
+import 'package:ZeeU/widgets/app.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,22 +10,25 @@ import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'models/app_user.dart';
 import 'models/user_state.dart';
-import 'pages/pages.dart';
 import 'utils/palette.dart';
 
 Future<void> main() async {
+  bool runOnce = false;
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseAuth.instance.authStateChanges().listen((User? user) {
+    if (runOnce) return;
     runApp(MyApp(user: user));
+    runOnce = true;
   });
 }
 
 class MyApp extends StatelessWidget {
   final User? user;
-  const MyApp({Key? key, required this.user}) : super(key: key);
+  MyApp({Key? key, required this.user}) : super(key: key);
+
+  final GlobalKey<NavigatorState> _appNavigatorKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -35,12 +41,13 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
               title: 'Zee U',
-              initialRoute: user == null ? '/login' : '/home',
+              navigatorKey: _appNavigatorKey,
+              initialRoute: user == null ? '/login' : '/app',
               routes: {
                 '/login': (context) => const LoginPage(),
                 '/signup': (context) => const SignupPage(),
                 '/signup-success': (context) => const SignupSuccessPage(),
-                '/home': (context) => const HomePage(),
+                '/app': (context) => App(appNavigatorKey: _appNavigatorKey)
               },
               theme: ThemeData(
                 brightness: Brightness.light,
