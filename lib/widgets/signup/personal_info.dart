@@ -89,7 +89,6 @@ class _PersonalInfoState extends State<PersonalInfo> {
           child: state.img == null || state.img!.isEmpty
                 ? InkWell(
                     onTap: () => Upload.pickImage(
-                      folder: 'temp',
                       onSuccess: (path) => setState(() => state.img = path)
                     ),
                     child: 
@@ -101,7 +100,6 @@ class _PersonalInfoState extends State<PersonalInfo> {
                       ))
                 : CloudImage(
                     image: state.img!,
-                    folder: 'temp',
                     onChanged: (path) {
                       if (path != '') setState(() => state.img = path);
                     },
