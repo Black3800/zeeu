@@ -1,5 +1,5 @@
 import 'package:ZeeU/utils/palette.dart';
-import 'package:flutter/material.dart' show MaterialColor;
+import 'package:flutter/material.dart' show MaterialColor, Icons;
 
 enum TabItem { home, chats, search, settings }
 
@@ -22,6 +22,20 @@ const tabRoutes = {
   TabItem.chats: TabRoutes.chats,
   TabItem.search: TabRoutes.search,
   TabItem.settings: TabRoutes.settings
+};
+
+const tabIcons = {
+  TabItem.home: Icons.home_outlined,
+  TabItem.chats: Icons.chat_bubble_outline,
+  TabItem.search: Icons.search_outlined,
+  TabItem.settings: Icons.settings_outlined
+};
+
+const tabBackgroundImg = {
+  TabItem.home: 'assets/Light-bg.png',
+  TabItem.chats: 'assets/Light-bg.png',
+  TabItem.search: 'assets/Light-bg.png',
+  TabItem.settings: 'assets/Light-bg.png'
 };
 
 const Map<TabItem, MaterialColor> activeTabColor = {

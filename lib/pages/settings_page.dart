@@ -13,7 +13,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Palette.white,
+        backgroundColor: Colors.transparent,
         body: Center(
           child: SingleChildScrollView(
             child: Padding(

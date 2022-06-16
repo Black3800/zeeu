@@ -38,13 +38,22 @@ class AppState extends State<App> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        body: Stack(
-          children: [
-            _buildOffstageNavigator(TabItem.home),
-            _buildOffstageNavigator(TabItem.chats),
-            _buildOffstageNavigator(TabItem.search),
-            _buildOffstageNavigator(TabItem.settings)
-          ]
+        extendBody: true,
+        body: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(tabBackgroundImg[_currentTab]!),
+              fit: BoxFit.cover
+            )
+          ),
+          child: Stack(
+            children: [
+              _buildOffstageNavigator(TabItem.home),
+              _buildOffstageNavigator(TabItem.chats),
+              _buildOffstageNavigator(TabItem.search),
+              _buildOffstageNavigator(TabItem.settings)
+            ]
+          ),
         ),
         bottomNavigationBar: BottomNavigation(
           currentTab: _currentTab,

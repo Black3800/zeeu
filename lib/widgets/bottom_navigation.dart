@@ -1,6 +1,7 @@
 import 'package:ZeeU/utils/palette.dart';
 import 'package:ZeeU/utils/tab_item.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class BottomNavigation extends StatelessWidget {
   const BottomNavigation({
@@ -14,31 +15,55 @@ class BottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      items: [
-        _buildItem(TabItem.home),
-        _buildItem(TabItem.chats),
-        _buildItem(TabItem.search),
-        _buildItem(TabItem.settings)
-      ],
-      onTap: (index) => onSelectTab(
-        TabItem.values[index],
+    return Container(
+      height: 64,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Palette.white.withOpacity(.3), Palette.white.withOpacity(.225)]
+        )
+      ),
+      child: Row(
+        children: [
+          _buildItem(TabItem.home),
+          _buildItem(TabItem.chats),
+          _buildItem(TabItem.search),
+          _buildItem(TabItem.settings)
+        ]
       ),
     );
   }
 
-  BottomNavigationBarItem _buildItem(TabItem tabItem) {
-    return BottomNavigationBarItem(
-      icon: Icon(
-        Icons.layers,
-        color: _colorTabMatching(tabItem),
-      ),
-      label: tabName[tabItem],
+  Widget _buildItem(TabItem tabItem) {
+    return Expanded(
+      child: InkWell(
+        onTap: () => onSelectTab(tabItem),
+        child: Container(
+          decoration: BoxDecoration(
+            color: _isCurrentTab(tabItem) ? Palette.white : Colors.transparent
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                tabIcons[tabItem],
+                color: _isCurrentTab(tabItem) ? activeTabColor[tabItem] : Palette.gray
+              ),
+              Text(
+                tabName[tabItem]!,
+                style: GoogleFonts.roboto(
+                  color: _isCurrentTab(tabItem) ? activeTabColor[tabItem] : Palette.gray
+                )
+              )
+            ]
+          )
+        ),
+      )
     );
   }
 
-  MaterialColor _colorTabMatching(TabItem item) {
-    return (currentTab == item ? activeTabColor[item] : Palette.gray) ?? Palette.gray;
+  bool _isCurrentTab(TabItem item) {
+    return currentTab == item;
   }
 }
