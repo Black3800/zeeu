@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:ZeeU/utils/palette.dart';
 import 'package:ZeeU/utils/tab_item.dart';
 import 'package:flutter/material.dart';
@@ -15,22 +17,27 @@ class BottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 64,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Palette.white.withOpacity(.3), Palette.white.withOpacity(.225)]
-        )
-      ),
-      child: Row(
-        children: [
-          _buildItem(TabItem.home),
-          _buildItem(TabItem.chats),
-          _buildItem(TabItem.search),
-          _buildItem(TabItem.settings)
-        ]
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20.0, sigmaY: 20.0),
+        child: Container(
+          height: 64,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Palette.white.withOpacity(.3), Palette.white.withOpacity(.225)]
+            )
+          ),
+          child: Row(
+            children: [
+              _buildItem(TabItem.home),
+              _buildItem(TabItem.chats),
+              _buildItem(TabItem.search),
+              _buildItem(TabItem.settings)
+            ]
+          ),
+        ),
       ),
     );
   }
