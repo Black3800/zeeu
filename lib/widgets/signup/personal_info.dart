@@ -74,118 +74,119 @@ class _PersonalInfoState extends State<PersonalInfo> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<SignupState>(builder: (context, state, child) => 
-      Form(
-        key: widget.formKey,
-        child: Column(children: [
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Palette.jet.shade50,
-                width: 5
-              ),
-              shape: BoxShape.circle
+    final state = Provider.of<SignupState>(context, listen: false);
+    return Form(
+      key: widget.formKey,
+      child: Column(children: [
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Palette.jet.shade50,
+              width: 5
             ),
-            child: state.img == null || state.img!.isEmpty
-                  ? InkWell(
-                      onTap: () => Upload.pickImage(
-                        folder: 'temp',
-                        onSuccess: (path) => setState(() => state.img = path)
-                      ),
-                      child: 
-                        CircleAvatar(
-                          foregroundColor: Palette.aquamarine.shade600,
-                          backgroundColor: Palette.white,
-                          child: const Icon(Icons.add, size: 25),
-                          radius: 35,
-                        ))
-                  : CloudImage(
-                      image: state.img!,
+            shape: BoxShape.circle
+          ),
+          child: state.img == null || state.img!.isEmpty
+                ? InkWell(
+                    onTap: () => Upload.pickImage(
                       folder: 'temp',
-                      onChanged: (path) => setState(() => state.img = path),
-                    )
-          ),
-          const SizedBox(height: 15),
-          Text(
-            'Upload your photo',
-            style: Theme.of(context).textTheme.bodyText1,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 15),
-          TextFormField(
-              controller: _firstNameController,
-              validator: _validateFirstName,
-              focusNode: _firstNameNode,
-              decoration: const InputDecoration(labelText: 'First name'),
-              textInputAction: TextInputAction.next,
-              onChanged: (value) => state.firstName = value,
-              onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_lastNameNode)),
-          const SizedBox(height: 15),
-          TextFormField(
-              controller: _lastNameController,
-              validator: _validateLastName,
-              focusNode: _lastNameNode,
-              decoration: const InputDecoration(labelText: 'Last name'),
-              textInputAction: TextInputAction.next,
-              onChanged: (value) => state.lastName = value,
-              onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_ageNode)),
-          const SizedBox(height: 15),
-          Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                    controller: _ageController,
-                    validator: _validateAge,
-                    focusNode: _ageNode,
-                    maxLength: 2,
-                    buildCounter: (context, {required int currentLength, required bool isFocused, required int? maxLength}) => null,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: <TextInputFormatter>[
-                      FilteringTextInputFormatter.digitsOnly
-                    ],
-                    decoration: const InputDecoration(labelText: 'Age'),
-                    textInputAction: TextInputAction.next,
-                    onChanged: (value) {
-                      try {
-                        state.age = int.parse(value);
-                      } catch (e) {
-                        if (value != '' && value.isNotEmpty) {
-                          _ageController.text = state.age.toString();
-                        }
-                      }
+                      onSuccess: (path) => setState(() => state.img = path)
+                    ),
+                    child: 
+                      CircleAvatar(
+                        foregroundColor: Palette.aquamarine.shade600,
+                        backgroundColor: Palette.white,
+                        child: const Icon(Icons.add, size: 25),
+                        radius: 35,
+                      ))
+                : CloudImage(
+                    image: state.img!,
+                    folder: 'temp',
+                    onChanged: (path) {
+                      if (path != '') setState(() => state.img = path);
                     },
-                    onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_sexNode)),
-              ),
-              const SizedBox(width: 30),
-              Expanded(
-                child: DropdownButton<String>(
-                  value: _sex,
-                  focusNode: _sexNode,
-                  items: const [
-                    DropdownMenuItem(
-                      child: Text('Male'),
-                      value: 'male'
-                    ),
-                    DropdownMenuItem(
-                      child: Text('Female'),
-                      value: 'female'
-                    ),
-                    DropdownMenuItem(
-                      child: Text('Other'),
-                      value: 'other'
-                    ),
+                  )
+        ),
+        const SizedBox(height: 15),
+        Text(
+          'Upload your photo',
+          style: Theme.of(context).textTheme.bodyText1,
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 15),
+        TextFormField(
+            controller: _firstNameController,
+            validator: _validateFirstName,
+            focusNode: _firstNameNode,
+            decoration: const InputDecoration(labelText: 'First name'),
+            textInputAction: TextInputAction.next,
+            onChanged: (value) => state.firstName = value,
+            onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_lastNameNode)),
+        const SizedBox(height: 15),
+        TextFormField(
+            controller: _lastNameController,
+            validator: _validateLastName,
+            focusNode: _lastNameNode,
+            decoration: const InputDecoration(labelText: 'Last name'),
+            textInputAction: TextInputAction.next,
+            onChanged: (value) => state.lastName = value,
+            onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_ageNode)),
+        const SizedBox(height: 15),
+        Row(
+          children: [
+            Expanded(
+              child: TextFormField(
+                  controller: _ageController,
+                  validator: _validateAge,
+                  focusNode: _ageNode,
+                  maxLength: 2,
+                  buildCounter: (context, {required int currentLength, required bool isFocused, required int? maxLength}) => null,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
                   ],
+                  decoration: const InputDecoration(labelText: 'Age'),
+                  textInputAction: TextInputAction.next,
                   onChanged: (value) {
-                    state.sex = value;
-                    setState(() => _sex = '$value');
-                  }
-                ),
-              )
-            ],
-          ),
-          const SizedBox(height: 100)
-        ]),
-      )
+                    try {
+                      state.age = int.parse(value);
+                    } catch (e) {
+                      if (value != '' && value.isNotEmpty) {
+                        _ageController.text = state.age.toString();
+                      }
+                    }
+                  },
+                  onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_sexNode)),
+            ),
+            const SizedBox(width: 30),
+            Expanded(
+              child: DropdownButton<String>(
+                value: _sex,
+                focusNode: _sexNode,
+                items: const [
+                  DropdownMenuItem(
+                    child: Text('Male'),
+                    value: 'male'
+                  ),
+                  DropdownMenuItem(
+                    child: Text('Female'),
+                    value: 'female'
+                  ),
+                  DropdownMenuItem(
+                    child: Text('Other'),
+                    value: 'other'
+                  ),
+                ],
+                onChanged: (value) {
+                  state.sex = value;
+                  setState(() => _sex = '$value');
+                }
+              ),
+            )
+          ],
+        ),
+        const SizedBox(height: 100)
+      ]),
     );
   }
 }

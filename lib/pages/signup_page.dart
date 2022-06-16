@@ -42,6 +42,8 @@ class _SignupPageState extends State<SignupPage> {
         'specialty': detail.userType == 'doctor' ? detail.specialty ?? 'General' : null,
         'bio': detail.userType == 'doctor' ? detail.bio : null
       });
+      Provider.of<SignupState>(context, listen: false).dispose();
+      FirebaseAuth.instance.signOut();
     } on FirebaseAuthException catch (e) {
       switch (e.code) {
         case "provider-already-linked":
@@ -128,16 +130,14 @@ class _SignupPageState extends State<SignupPage> {
                                 ),
                                 FlatRectButton(
                                   onPressed: () async {
+                                    FocusScope.of(context).unfocus();
                                     if (!(_formKeys[_currentStep].currentState?.validate() ?? true)) {
                                       return;
                                     }
                                     if (_isNotLastStep) {
                                       setState(() => _currentStep += 1);
                                     } else {
-                                      await _handleSignup();
-                                      Navigator.of(context).pushNamed('/signup-success');
-                                      FirebaseAuth.instance.signOut();
-                                      state.dispose();
+                                      await _handleSignup().then((_) => Navigator.of(context).pushNamed('/signup-success'));
                                     }
                                   },
                                   text: _isNotLastStep ? 'Next' : 'Finish',
