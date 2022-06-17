@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 class UserState extends ChangeNotifier {
   AppUser? _user;
   
+  String? get userType => _user?.userType;
   String? get firstName => _user?.firstName;
   String? get lastName => _user?.lastName;
   String? get email => _user?.email;

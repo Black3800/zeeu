@@ -1,10 +1,15 @@
+import 'package:ZeeU/models/app_user.dart';
+import 'package:ZeeU/models/user_state.dart';
 import 'package:ZeeU/pages/chat_page.dart';
 import 'package:ZeeU/pages/home_page.dart';
 import 'package:ZeeU/pages/search_page.dart';
 import 'package:ZeeU/pages/settings_page.dart';
 import 'package:ZeeU/widgets/bottom_navigation.dart';
 import 'package:ZeeU/utils/tab_item.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class App extends StatefulWidget {
   final GlobalKey<NavigatorState> appNavigatorKey;
@@ -22,16 +27,35 @@ class AppState extends State<App> {
     TabItem.settings: GlobalKey()
   };
   TabItem _currentTab = TabItem.home;
-
-  final routeBuilders = {
-              TabRoutes.home: (context) => const HomePage(),
-              TabRoutes.chats: (context) => const ChatPage(),
-              TabRoutes.search: (context) => const SearchPage(),
-              TabRoutes.settings: (context) => const SettingsPage()
-            };
+  late Map routeBuilders;
 
   void _selectTab(TabItem tabItem) {
     setState(() => _currentTab = tabItem);
+  }
+
+  Future<void> _fetchCurrentUser() async {
+    final credential = FirebaseAuth.instance.currentUser;
+    final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc('${credential?.uid}').get();
+    final user = AppUser.fromJson(doc.data() ?? {});
+    user.uid = credential?.uid;
+    user.email = credential?.email;
+    Provider.of<UserState>(context, listen: false).updateUser(user);
+  }
+
+  @override
+  void initState() {
+    if (Provider.of<UserState>(context, listen: false).uid == null) {
+      _fetchCurrentUser();
+    }
+    routeBuilders = {
+      TabRoutes.home: (_) => HomePage(changeTab: _selectTab),
+      TabRoutes.chats: (_) => const ChatPage(),
+      TabRoutes.search: (_) => const SearchPage(),
+      TabRoutes.settings: (_) => const SettingsPage()
+    };
+    super.initState();
   }
 
   @override
@@ -70,12 +94,13 @@ class AppState extends State<App> {
         key: _navigatorKeys[tabItem],
         initialRoute: tabRoutes[tabItem],
         onGenerateRoute: (routeSettings) {
-          if (routeSettings.name == '/logout') {
+          final routeName = routeSettings.name!;
+          if (routeName == '/logout') {
             widget.appNavigatorKey.currentState?.pushReplacementNamed('/login');
             return MaterialPageRoute(builder: (_) => const SizedBox());
           }
           return MaterialPageRoute(
-            builder: (context) => routeBuilders[routeSettings.name]!(context),
+            builder: (context) => routeBuilders[routeName]!(context),
           );
         },
       ),

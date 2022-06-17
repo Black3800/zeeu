@@ -1,9 +1,28 @@
+import 'package:ZeeU/models/app_user.dart';
+import 'package:ZeeU/models/appointment.dart';
+import 'package:ZeeU/models/user_state.dart';
 import 'package:ZeeU/utils/palette.dart';
+import 'package:ZeeU/utils/tab_item.dart';
+import 'package:ZeeU/widgets/home/appointment_card.dart';
+import 'package:ZeeU/widgets/home/appointment_divider.dart';
+import 'package:ZeeU/widgets/home/hero_card.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+
+extension DateOnlyCompare on DateTime {
+  bool isSameDate(DateTime other) {
+    return year == other.year && month == other.month && day == other.day;
+  }
+}
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({Key? key, required this.changeTab}) : super(key: key);
+
+  final Function(TabItem) changeTab;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -11,17 +30,125 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
+  final appointmentRef = FirebaseFirestore.instance
+      .collection('appointments')
+      .withConverter<Appointment>(
+        fromFirestore: (snapshots, _) => Appointment.fromJson(snapshots.data()!),
+        toFirestore: (appointment, _) => appointment.toJson()
+      );
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Center(
-        child: SingleChildScrollView(
+    return Consumer<UserState>(builder: (context, user, child) =>
+      Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(15),
-            child: Column()
+            child: Column(
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Welcome back\n${user.firstName}! 😄',
+                    style: GoogleFonts.roboto(
+                      color: Palette.jet,
+                      fontSize: 32,
+                      fontWeight: FontWeight.w900
+                    )
+                  ),
+                ),
+                HeroCard(
+                  text: user.userType == 'patient' ? 'How are you feeling today?' : 'Thanks for your hard work!',
+                  buttonText: user.userType == 'patient' ?  'Consult now' : 'See patients',
+                  onPressed: () => widget.changeTab(TabItem.chats),
+                  image: const AssetImage('assets/Heart.png')
+                ),
+                Text('Upcoming', style: Theme.of(context).textTheme.headline2?.apply(color: Palette.jet)),
+                if (user.uid != null)
+                  StreamBuilder<QuerySnapshot<Appointment>>(
+                    stream: appointmentRef
+                                .where(user.userType!, isEqualTo: user.uid)
+                                .where('start', isGreaterThan: Timestamp.now())
+                                .orderBy('start')
+                                .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Text(snapshot.error.toString()),
+                        );
+                      }
+
+                      if (!snapshot.hasData) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      final docs = snapshot.requireData.docs;
+                      final appointments = [];
+                      var previousAppointmentDate = '';
+                      for (var i = 0; i < docs.length; i++) {
+                        final a = docs[i].data();
+                        final date = _formatAppointmentDate(a.start);
+                        if (date != previousAppointmentDate) {
+                          appointments.add(AppointmentDivider(text: date));
+                        }
+                        appointments.add(a);
+                        previousAppointmentDate = date;
+                      }
+
+                      return Column(
+                        children: appointments
+                                    .map<Widget>((a) => a is AppointmentDivider ? a : FutureBuilder<DocumentSnapshot>(
+                                      future: FirebaseFirestore.instance
+                                                .collection('users')
+                                                .doc(user.userType == 'patient'
+                                                    ? a.doctor.uid
+                                                    : a.patient.uid)
+                                                .get(),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasError) {
+                                          return Center(
+                                            child: Text(snapshot.error.toString()),
+                                          );
+                                        }
+
+                                        if (!snapshot.hasData) {
+                                          return const Center(child: CircularProgressIndicator());
+                                        }
+
+                                        final data = snapshot.requireData.data() as Map;
+                                        final user = AppUser.fromJson(data);
+                                        return AppointmentCard(
+                                          image: user.img!,
+                                          name: '${user.firstName} ${user.lastName}',
+                                          institute: user.institute ?? 'Patient',
+                                          startTime: DateFormat('Hm').format(a.start),
+                                          endTime: DateFormat('Hm').format(a.end)
+                                        );
+                                      }
+                                    ))
+                                    .toList()
+                      );
+                    }
+                  ),
+                const SizedBox(height: 50)
+              ],
+            )
           ),
-        ),
-      ));
+        )
+      )
+    );
+  }
+
+  String _formatAppointmentDate(DateTime date) {
+    final now = DateTime.now();
+    if (date.subtract(const Duration(days: 1)).isSameDate(now)) {
+      return 'Tomorrow';
+    } else if (date.difference(now).inDays < 6) {
+      return DateFormat('EEEE').format(date);
+    } else if (date.year == now.year) {
+      return DateFormat('MMMMd').format(date);
+    }
+    return DateFormat('yMMMMd').format(date);
   }
 }
