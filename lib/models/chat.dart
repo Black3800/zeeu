@@ -1,0 +1,41 @@
+import 'package:ZeeU/models/app_user.dart';
+import 'package:ZeeU/models/message.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
+
+class Chat {
+  AppUser doctor;
+  AppUser patient;
+  String latestMessageText;
+  DateTime latestMessageTime;
+  bool latestMessageSeen;
+  List<Message>? messages;
+  String? id;
+
+  Chat({
+    required this.doctor,
+    required this.patient,
+    required this.latestMessageText,
+    required this.latestMessageTime,
+    required this.latestMessageSeen,
+    this.messages,
+    this.id
+  });
+
+  Chat.fromJson(Map<dynamic, dynamic> json, { String? id })
+    : doctor = AppUser(uid: json['doctor']),
+      patient = AppUser(uid: json['patient']),
+      latestMessageText = json['latest_message_text'],
+      latestMessageTime = (json['latest_message_time'] as Timestamp).toDate(),
+      latestMessageSeen = json['latest_message_seen'],
+      messages = json['messages'],
+      this.id = id;
+
+  Map<String, Object?> toJson() => <String, Object?>{
+    'doctor': doctor,
+    'patient': patient,
+    'latest_message_text': latestMessageText,
+    'latest_message_time': latestMessageTime,
+    'latest_message_seen': latestMessageSeen,
+    'messages': messages
+  };
+}
