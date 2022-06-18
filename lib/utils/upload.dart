@@ -9,7 +9,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:uuid/uuid.dart';
 
 class Upload {
-  static Future<bool> image(Uint8List bytes, { String folder = 'uploads', Function(String)? onSuccess }) async {
+  static Future<String> image(Uint8List bytes, { String folder = 'uploads', Function(String)? onSuccess }) async {
     try {
       if (defaultTargetPlatform == TargetPlatform.iOS ||
           defaultTargetPlatform == TargetPlatform.android) {
@@ -30,14 +30,14 @@ class Upload {
           if (e.code == 'object-not-found') {
             await FirebaseStorage.instance.refFromURL(path).putData(bytes);
             onSuccess?.call(path);
-            break;
+            return path;
           }
         }
       }
     } on Exception catch (e) {
-      return false;
+      //
     }
-    return true;
+    return '';
   }
 
   static Future<void> pickImage({ String folder = 'uploads', Function(String)? onSuccess }) async {

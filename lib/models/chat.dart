@@ -7,7 +7,8 @@ class Chat {
   AppUser patient;
   String latestMessageText;
   DateTime latestMessageTime;
-  bool latestMessageSeen;
+  bool latestMessageSeenDoctor;
+  bool latestMessageSeenPatient;
   List<Message>? messages;
   String? id;
 
@@ -16,7 +17,8 @@ class Chat {
     required this.patient,
     required this.latestMessageText,
     required this.latestMessageTime,
-    required this.latestMessageSeen,
+    required this.latestMessageSeenDoctor,
+    required this.latestMessageSeenPatient,
     this.messages,
     this.id
   });
@@ -26,7 +28,8 @@ class Chat {
       patient = AppUser(uid: json['patient']),
       latestMessageText = json['latest_message_text'],
       latestMessageTime = (json['latest_message_time'] as Timestamp).toDate(),
-      latestMessageSeen = json['latest_message_seen'],
+      latestMessageSeenDoctor = json['latest_message_seen_doctor'],
+      latestMessageSeenPatient = json['latest_message_seen_patient'],
       messages = json['messages'],
       this.id = id;
 
@@ -35,7 +38,8 @@ class Chat {
     'patient': patient,
     'latest_message_text': latestMessageText,
     'latest_message_time': latestMessageTime,
-    'latest_message_seen': latestMessageSeen,
+    'latest_message_seen_doctor': latestMessageSeenDoctor,
+    'latest_message_seen_patient': latestMessageSeenPatient,
     'messages': messages
   };
 }

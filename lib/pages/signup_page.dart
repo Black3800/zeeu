@@ -40,7 +40,8 @@ class _SignupPageState extends State<SignupPage> {
         'institute': detail.userType == 'doctor' ? detail.institute : null,
         'contact': detail.userType == 'doctor' ? detail.contact : null,
         'specialty': detail.userType == 'doctor' ? detail.specialty ?? 'General' : null,
-        'bio': detail.userType == 'doctor' ? detail.bio : null
+        'bio': detail.userType == 'doctor' ? detail.bio : null,
+        'active': false
       });
       Provider.of<SignupState>(context, listen: false).dispose();
       FirebaseAuth.instance.signOut();

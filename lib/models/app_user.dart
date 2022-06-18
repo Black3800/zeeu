@@ -10,6 +10,7 @@ class AppUser {
   String? specialty;
   String? bio;
   String? uid;
+  bool? active;
   AppUser({
     this.userType,
     this.firstName,
@@ -21,7 +22,8 @@ class AppUser {
     this.contact,
     this.specialty,
     this.bio,
-    this.uid = ''
+    this.uid = '',
+    this.active = false
   });
 
   AppUser.fromRef(AppUser ref)
@@ -35,9 +37,10 @@ class AppUser {
       contact = ref.contact,
       specialty = ref.specialty,
       bio = ref.bio,
-      uid = ref.uid;
+      uid = ref.uid,
+      active = ref.active;
 
-  AppUser.fromJson(Map<dynamic, dynamic> json)
+  AppUser.fromJson(Map<dynamic, dynamic> json, { String? uid })
     : userType = json['user_type'],
       firstName = json['first_name'],
       lastName = json['last_name'],
@@ -47,9 +50,11 @@ class AppUser {
       institute = json['institute'],
       contact = json['contact'],
       specialty = json['specialty'],
-      bio = json['bio'];
+      bio = json['bio'],
+      active = json['active'],
+      this.uid = uid;
 
-  Map<dynamic, dynamic> toJson() => <dynamic, dynamic>{
+  Map<String, Object?> toJson() => <String, Object?>{
     'user_type': userType,
     'first_name': firstName,
     'last_name': lastName,
@@ -60,5 +65,6 @@ class AppUser {
     'contact': contact,
     'specialty': specialty,
     'bio': bio,
+    'active': active
   };
 }

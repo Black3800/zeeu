@@ -8,6 +8,7 @@ class TabRoutes {
   static const String chats = '/chats';
   static const String search = '/search';
   static const String settings = '/settings';
+  static const String messages = '/messages';
 }
 
 const Map<TabItem, String> tabName = {
@@ -32,10 +33,11 @@ const tabIcons = {
 };
 
 const tabBackgroundImg = {
-  TabItem.home: 'assets/Light-bg.png',
-  TabItem.chats: 'assets/Light-bg.png',
-  TabItem.search: 'assets/Light-bg.png',
-  TabItem.settings: 'assets/Light-bg.png'
+  TabRoutes.home:                 'assets/Light-bg.png',
+  TabRoutes.chats:                'assets/Light-bg.png',
+  '${TabRoutes.chats}/messages':  'assets/Light-bg.png',
+  TabRoutes.search:               'assets/Light-bg.png',
+  TabRoutes.settings:             'assets/Light-bg.png'
 };
 
 const Map<TabItem, MaterialColor> activeTabColor = {

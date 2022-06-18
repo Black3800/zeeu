@@ -9,7 +9,7 @@ class ChatCard extends StatelessWidget {
     required this.name,
     required this.text,
     required this.time,
-    this.seen = true,
+    required this.seen,
     this.onTap
   }) : super(key: key);
 

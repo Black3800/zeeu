@@ -16,7 +16,12 @@ extension DateOnlyCompare on DateTime {
 }
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({Key? key}) : super(key: key);
+  const ChatPage({
+    Key? key,
+    required this.notifyRouteChange
+  }) : super(key: key);
+
+  final Function(String, String) notifyRouteChange;
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -92,14 +97,19 @@ class _ChatPageState extends State<ChatPage> {
                                       }
 
                                       final data = snapshot.requireData.data() as Map;
-                                      final user = AppUser.fromJson(data);
+                                      final chatUser = AppUser.fromJson(data);
                                       return ChatCard(
-                                        image: user.img!,
-                                        name: '${user.firstName} ${user.lastName}',
+                                        image: chatUser.img!,
+                                        name: '${chatUser.firstName} ${chatUser.lastName}',
                                         text: c.latestMessageText,
                                         time: _formatChatTime(c.latestMessageTime),
-                                        seen: c.latestMessageSeen,
-                                        onTap: () => print('/chats/${c.id}'),
+                                        seen: user.userType == 'doctor'
+                                              ? c.latestMessageSeenDoctor
+                                              : c.latestMessageSeenPatient,
+                                        onTap: () {
+                                          Navigator.of(context).pushNamed('/messages', arguments: c);
+                                          widget.notifyRouteChange('push', '/messages');
+                                        },
                                       );
                                     }
                                   ))

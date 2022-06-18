@@ -2,6 +2,7 @@ import 'package:ZeeU/models/app_user.dart';
 import 'package:ZeeU/models/user_state.dart';
 import 'package:ZeeU/pages/chat_page.dart';
 import 'package:ZeeU/pages/home_page.dart';
+import 'package:ZeeU/pages/message_page.dart';
 import 'package:ZeeU/pages/search_page.dart';
 import 'package:ZeeU/pages/settings_page.dart';
 import 'package:ZeeU/widgets/bottom_navigation.dart';
@@ -10,6 +11,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class App extends StatefulWidget {
   final GlobalKey<NavigatorState> appNavigatorKey;
@@ -26,11 +28,37 @@ class AppState extends State<App> {
     TabItem.search: GlobalKey(),
     TabItem.settings: GlobalKey()
   };
+  final tabStacks = {
+    TabItem.home: [TabRoutes.home],
+    TabItem.chats: [TabRoutes.chats],
+    TabItem.search: [TabRoutes.search],
+    TabItem.settings: [TabRoutes.settings]
+  };
   TabItem _currentTab = TabItem.home;
+  String _currentImg = tabBackgroundImg[TabRoutes.home]!;
   late Map routeBuilders;
 
   void _selectTab(TabItem tabItem) {
     setState(() => _currentTab = tabItem);
+    _matchBackgroundWithRoute();
+  }
+
+  void _matchBackgroundWithRoute() {
+    _changeBackground(tabBackgroundImg[tabStacks[_currentTab]!.join()]!);
+  }
+
+  void _changeBackground(String imgPath) {
+    setState(() => _currentImg = imgPath);
+  }
+
+  void _handleRouteChange(String action, String routeName) {
+    if (action == 'push') {
+      tabStacks[_currentTab]!.add(routeName);
+    } else if (action == 'pop') {
+      tabStacks[_currentTab]!.removeLast();
+    }
+    print(tabStacks[_currentTab]!.join());
+    _matchBackgroundWithRoute();
   }
 
   Future<void> _fetchCurrentUser() async {
@@ -51,9 +79,10 @@ class AppState extends State<App> {
     }
     routeBuilders = {
       TabRoutes.home: (_) => HomePage(changeTab: _selectTab),
-      TabRoutes.chats: (_) => const ChatPage(),
+      TabRoutes.chats: (_) => ChatPage(notifyRouteChange: _handleRouteChange),
       TabRoutes.search: (_) => const SearchPage(),
-      TabRoutes.settings: (_) => const SettingsPage()
+      TabRoutes.settings: (_) => const SettingsPage(),
+      TabRoutes.messages: (chat) => MessagePage(chat: chat, notifyRouteChange: _handleRouteChange)
     };
     super.initState();
   }
@@ -66,18 +95,17 @@ class AppState extends State<App> {
         body: Container(
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage(tabBackgroundImg[_currentTab]!),
-              fit: BoxFit.cover
+              image: AssetImage(_currentImg),
+              fit: BoxFit.cover,
+              alignment: Alignment.topCenter
             )
           ),
-          child: Stack(
-            children: [
-              _buildOffstageNavigator(TabItem.home),
-              _buildOffstageNavigator(TabItem.chats),
-              _buildOffstageNavigator(TabItem.search),
-              _buildOffstageNavigator(TabItem.settings)
-            ]
-          ),
+          child: Stack(children: [
+            _buildOffstageNavigator(TabItem.home),
+            _buildOffstageNavigator(TabItem.chats),
+            _buildOffstageNavigator(TabItem.search),
+            _buildOffstageNavigator(TabItem.settings)
+          ]),
         ),
         bottomNavigationBar: BottomNavigation(
           currentTab: _currentTab,
@@ -98,6 +126,8 @@ class AppState extends State<App> {
           if (routeName == '/logout') {
             widget.appNavigatorKey.currentState?.pushReplacementNamed('/login');
             return MaterialPageRoute(builder: (_) => const SizedBox());
+          } else if (routeName == '/messages') {
+            return MaterialPageRoute(builder: (_) => routeBuilders['/messages'](routeSettings.arguments));
           }
           return MaterialPageRoute(
             builder: (context) => routeBuilders[routeName]!(context),
