@@ -70,6 +70,12 @@ class HistoryPage extends StatelessWidget {
                       previousAppointmentDate = date;
                     }
 
+                    if (appointments.isEmpty) {
+                      return const Center(
+                        child: Text('Nothing')
+                      );
+                    }
+
                     return Column(children:
                               appointments.map<Widget>((a) => a is AppointmentDivider ? a :
                                 FutureBuilder<DocumentSnapshot>(

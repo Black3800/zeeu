@@ -26,7 +26,7 @@ class _MessageBarState extends State<MessageBar> {
   Future<void> _showAppointmentDialog(context) async {
     final pickedTime = await showDialog(
       context: context,
-      builder: (context) => AppointmentDialog()
+      builder: (context) => const AppointmentDialog()
     );
     if(pickedTime != null) widget.onSubmitAppointment!(pickedTime['start'], pickedTime['end']);
   }
@@ -53,7 +53,14 @@ class _MessageBarState extends State<MessageBar> {
             splashRadius: 24
           ),
           IconButton(
-            onPressed: () {},
+            onPressed: () async {
+              final picker = ImagePicker();
+              final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+              if (image == null) return;
+              final bytes = await image.readAsBytes();
+              final path = await Upload.image(bytes);
+              widget.onSubmitImage(path);
+            },
             icon: const Icon(Icons.photo, size: 24),
             iconSize: 24,
             padding: EdgeInsets.zero,

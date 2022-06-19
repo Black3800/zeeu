@@ -135,6 +135,12 @@ class _ChatPageState extends State<ChatPage> {
                       ))
                       .toList();
 
+                    if (cards.isEmpty) {
+                      return const Center(
+                        child: Text('Empty')
+                      );
+                    }
+
                     return Column(
                       children: cards
                     );

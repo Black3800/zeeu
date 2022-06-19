@@ -86,7 +86,11 @@ class AppState extends State<App> {
       TabRoutes.search: (_) => SearchPage(notifyRouteChange: _handleRouteChange),
       TabRoutes.settings: (_) => SettingsPage(notifyRouteChange: _handleRouteChange),
       TabRoutes.messages: (chat) => MessagePage(chat: chat, notifyRouteChange: _handleRouteChange),
-      TabRoutes.doctors: (specialty) => DoctorPage(specialty: specialty, notifyRouteChange: _handleRouteChange),
+      TabRoutes.doctors: (specialty) => DoctorPage(
+                                          specialty: specialty,
+                                          notifyRouteChange: _handleRouteChange,
+                                          changeTab: _selectTab
+                                        ),
       TabRoutes.profile: (_) => ProfilePage(notifyRouteChange: _handleRouteChange),
       TabRoutes.history: (_) => HistoryPage(notifyRouteChange: _handleRouteChange)
     };

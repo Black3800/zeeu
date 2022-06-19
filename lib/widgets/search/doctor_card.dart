@@ -10,6 +10,7 @@ class DoctorCard extends StatelessWidget {
     required this.specialty,
     required this.institute,
     required this.contact,
+    this.onTap
   }) : super(key: key);
 
   final String image;
@@ -17,55 +18,59 @@ class DoctorCard extends StatelessWidget {
   final String specialty;
   final String institute;
   final String contact;
+  final Function(BuildContext)? onTap;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
-      child: Container(
-          width: double.infinity,
-          height: 92,
-          decoration: BoxDecoration(color: Palette.white),
-          child: Row(children: [
-            Container(
-              width: 7,
-              color: Palette.aquamarine,
-            ),
-            const SizedBox(width: 15),
-            Expanded(
-              child: Row(children: [
-                Container(
-                  width: 60,
-                  height: 60,
-                  clipBehavior: Clip.hardEdge,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
+      child: InkWell(
+        onTap: () => onTap?.call(context),
+        child: Container(
+            width: double.infinity,
+            height: 92,
+            decoration: BoxDecoration(color: Palette.white),
+            child: Row(children: [
+              Container(
+                width: 7,
+                color: Palette.aquamarine,
+              ),
+              const SizedBox(width: 15),
+              Expanded(
+                child: Row(children: [
+                  Container(
+                    width: 60,
+                    height: 60,
+                    clipBehavior: Clip.hardEdge,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: FutureBuilder(
+                        future: FirebaseStorage.instance
+                            .refFromURL(image)
+                            .getDownloadURL(),
+                        builder: (context, AsyncSnapshot<String> snapshot) {
+                          if (snapshot.hasData && snapshot.data != null) {
+                            return Image(
+                              image: NetworkImage(snapshot.data!),
+                              fit: BoxFit.cover,
+                            );
+                          }
+                          return const CircularProgressIndicator();
+                        }),
                   ),
-                  child: FutureBuilder(
-                      future: FirebaseStorage.instance
-                          .refFromURL(image)
-                          .getDownloadURL(),
-                      builder: (context, AsyncSnapshot<String> snapshot) {
-                        if (snapshot.hasData && snapshot.data != null) {
-                          return Image(
-                            image: NetworkImage(snapshot.data!),
-                            fit: BoxFit.cover,
-                          );
-                        }
-                        return const CircularProgressIndicator();
-                      }),
-                ),
-                Column(
-                  children: [
-                    Text(name),
-                    Text(specialty),
-                    Text(institute),
-                    Text(contact)
-                  ]
-                ),
-              ]),
-            )
-          ])),
+                  Column(
+                    children: [
+                      Text(name),
+                      Text(specialty),
+                      Text(institute),
+                      Text(contact)
+                    ]
+                  ),
+                ]),
+              )
+            ])),
+      ),
     );
   }
 }
