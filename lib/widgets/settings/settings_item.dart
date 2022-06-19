@@ -25,9 +25,9 @@ class SettingsItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () async {
-        await Navigator.of(context).pushNamed(routeName);
+      onTap: () {
         notifyRouteChange('push', routeName);
+        Navigator.of(context).pushNamed(routeName);
       },
       child: Container(
         padding: EdgeInsets.all(15),

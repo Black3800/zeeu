@@ -2,6 +2,7 @@ import 'package:ZeeU/models/app_user.dart';
 import 'package:ZeeU/models/user_state.dart';
 import 'package:ZeeU/pages/chat_page.dart';
 import 'package:ZeeU/pages/doctor_page.dart';
+import 'package:ZeeU/pages/history_page.dart';
 import 'package:ZeeU/pages/home_page.dart';
 import 'package:ZeeU/pages/message_page.dart';
 import 'package:ZeeU/pages/profile_page.dart';
@@ -86,7 +87,8 @@ class AppState extends State<App> {
       TabRoutes.settings: (_) => SettingsPage(notifyRouteChange: _handleRouteChange),
       TabRoutes.messages: (chat) => MessagePage(chat: chat, notifyRouteChange: _handleRouteChange),
       TabRoutes.doctors: (specialty) => DoctorPage(specialty: specialty, notifyRouteChange: _handleRouteChange),
-      TabRoutes.profile: (_) => ProfilePage(notifyRouteChange: _handleRouteChange)
+      TabRoutes.profile: (_) => ProfilePage(notifyRouteChange: _handleRouteChange),
+      TabRoutes.history: (_) => HistoryPage(notifyRouteChange: _handleRouteChange)
     };
     super.initState();
   }

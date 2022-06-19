@@ -8,15 +8,15 @@ class AppointmentCard extends StatelessWidget {
     required this.image,
     required this.name,
     required this.institute,
-    required this.startTime,
-    required this.endTime
+    this.startTime,
+    this.endTime
   }) : super(key: key);
 
   final String image;
   final String name;
   final String institute;
-  final String startTime;
-  final String endTime;
+  final String? startTime;
+  final String? endTime;
 
   @override
   Widget build(BuildContext context) {
@@ -64,12 +64,13 @@ class AppointmentCard extends StatelessWidget {
                       Text(institute)
                     ]
                   ),
-                  Column(
-                    children: [
-                      Text(startTime),
-                      Text(endTime)
-                    ]
-                  )
+                  if (startTime != null)
+                    Column(
+                      children: [
+                        Text(startTime!),
+                        Text(endTime!)
+                      ]
+                    )
                 ]
               ),
             )

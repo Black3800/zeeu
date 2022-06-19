@@ -11,6 +11,7 @@ class TabRoutes {
   static const String messages = '/messages';
   static const String doctors = '/doctors';
   static const String profile = '/profile';
+  static const String history = '/history';
 }
 
 const Map<TabItem, String> tabName = {
@@ -41,7 +42,9 @@ const tabBackgroundImg = {
   TabRoutes.search                : 'assets/Light-bg.png',
   '${TabRoutes.search}/doctors'   : 'assets/Light-bg.png',
   TabRoutes.settings              : 'assets/Light-bg.png',
-  '${TabRoutes.settings}/profile' : 'assets/Light-bg.png'
+  '${TabRoutes.settings}/profile' : 'assets/Light-bg.png',
+  '${TabRoutes.settings}/history' : 'assets/Light-bg.png',
+  '${TabRoutes.settings}/logout'  : 'assets/Light-bg.png'
 };
 
 const Map<TabItem, MaterialColor> activeTabColor = {
