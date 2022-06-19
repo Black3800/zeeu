@@ -4,6 +4,7 @@ import 'package:ZeeU/pages/chat_page.dart';
 import 'package:ZeeU/pages/doctor_page.dart';
 import 'package:ZeeU/pages/home_page.dart';
 import 'package:ZeeU/pages/message_page.dart';
+import 'package:ZeeU/pages/profile_page.dart';
 import 'package:ZeeU/pages/search_page.dart';
 import 'package:ZeeU/pages/settings_page.dart';
 import 'package:ZeeU/widgets/bottom_navigation.dart';
@@ -82,9 +83,10 @@ class AppState extends State<App> {
       TabRoutes.home: (_) => HomePage(changeTab: _selectTab),
       TabRoutes.chats: (_) => ChatPage(notifyRouteChange: _handleRouteChange),
       TabRoutes.search: (_) => SearchPage(notifyRouteChange: _handleRouteChange),
-      TabRoutes.settings: (_) => const SettingsPage(),
+      TabRoutes.settings: (_) => SettingsPage(notifyRouteChange: _handleRouteChange),
       TabRoutes.messages: (chat) => MessagePage(chat: chat, notifyRouteChange: _handleRouteChange),
-      TabRoutes.doctors: (specialty) => DoctorPage(specialty: specialty, notifyRouteChange: _handleRouteChange)
+      TabRoutes.doctors: (specialty) => DoctorPage(specialty: specialty, notifyRouteChange: _handleRouteChange),
+      TabRoutes.profile: (_) => ProfilePage(notifyRouteChange: _handleRouteChange)
     };
     super.initState();
   }
@@ -126,6 +128,7 @@ class AppState extends State<App> {
         onGenerateRoute: (routeSettings) {
           final routeName = routeSettings.name!;
           if (routeName == '/logout') {
+            FirebaseAuth.instance.signOut();
             widget.appNavigatorKey.currentState?.pushReplacementNamed('/login');
             return MaterialPageRoute(builder: (_) => const SizedBox());
           } else if (routeName == '/messages') {

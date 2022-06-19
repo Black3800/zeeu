@@ -10,6 +10,7 @@ class UserState extends ChangeNotifier {
   String? get email => _user?.email;
   String? get img => _user?.img;
   String? get uid => _user?.uid;
+  AppUser? get instance => _user;
 
   set firstName(String? value) {
     _user?.firstName = value;
