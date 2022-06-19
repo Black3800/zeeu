@@ -1,18 +1,35 @@
 import 'package:ZeeU/utils/upload.dart';
+import 'package:ZeeU/widgets/chats/appointment_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
-class MessageBar extends StatelessWidget {
+class MessageBar extends StatefulWidget {
   const MessageBar({
     Key? key,
     required this.textController,
     required this.onSubmitText,
-    required this.onSubmitImage
+    required this.onSubmitImage,
+    this.onSubmitAppointment
   }) : super(key: key);
 
   final TextEditingController textController;
   final Function() onSubmitText;
   final Function(String) onSubmitImage;
+  final Function(DateTime, DateTime)? onSubmitAppointment;
+
+  @override
+  State<MessageBar> createState() => _MessageBarState();
+}
+
+class _MessageBarState extends State<MessageBar> {
+  Future<void> _showAppointmentDialog(context) async {
+    final pickedTime = await showDialog(
+      context: context,
+      builder: (context) => AppointmentDialog()
+    );
+    if(pickedTime != null) widget.onSubmitAppointment!(pickedTime['start'], pickedTime['end']);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +45,7 @@ class MessageBar extends StatelessWidget {
               if (image == null) return;
               final bytes = await image.readAsBytes();
               final path = await Upload.image(bytes);
-              onSubmitImage(path);
+              widget.onSubmitImage(path);
             },
             icon: const Icon(Icons.camera_alt, size: 24),
             iconSize: 24,
@@ -42,13 +59,21 @@ class MessageBar extends StatelessWidget {
             padding: EdgeInsets.zero,
             splashRadius: 24
           ),
+          if (widget.onSubmitAppointment != null)
+            IconButton(
+              onPressed: () => _showAppointmentDialog(context),
+              icon: const Icon(Icons.calendar_month, size: 24),
+              iconSize: 24,
+              padding: EdgeInsets.zero,
+              splashRadius: 24
+            ),
           Expanded(child:
             TextFormField(
-              controller: textController
+              controller: widget.textController
             )
           ),
           IconButton(
-            onPressed: onSubmitText,
+            onPressed: widget.onSubmitText,
             icon: const Icon(Icons.send, size: 24),
             iconSize: 24,
             padding: EdgeInsets.zero,

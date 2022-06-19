@@ -74,10 +74,7 @@ class _MessagePageState extends State<MessagePage> {
         time: msgTime
       )
     );
-    _updateLatestMessage(
-      text: text,
-      time: msgTime
-    );
+    _updateLatestMessage(text: text, time: msgTime);
   }
 
   Future<void> _sendImage({ required String path, required String sendAs }) async {
@@ -91,10 +88,31 @@ class _MessagePageState extends State<MessagePage> {
         time: msgTime
       )
     );
-    _updateLatestMessage(
-      text: 'Photo',
-      time: msgTime
+    _updateLatestMessage(text: 'Photo', time: msgTime);
+  }
+
+  Future<void> _makeAppointment({
+    required DateTime start,
+    required DateTime end,
+    required String doctorUid,
+    required String patientUid
+  }) async {
+    final msgTime = DateTime.now();
+    final appointment = await FirebaseFirestore.instance.collection('appointments').add({
+      'doctor': doctorUid,
+      'patient': patientUid,
+      'start': Timestamp.fromDate(start),
+      'end': Timestamp.fromDate(end)
+    });
+    await messageRef.add(
+      Message(
+        isFromDoctor: true,
+        type: 'appointment',
+        content: appointment.id,
+        time: msgTime
+      )
     );
+    _updateLatestMessage(text: "Appointment on ${DateFormat('yMMMd').add_Hm().format(start)}", time: msgTime);
   }
 
   void _updateLatestMessage({ required String text, required DateTime time }) {
@@ -238,9 +256,15 @@ class _MessagePageState extends State<MessagePage> {
                               text: controller.text,
                               sendAs: user.userType!
                             );
-                            controller.clear();
                           },
-                          onSubmitImage: (path) => _sendImage(path: path, sendAs: user.userType!)
+                          onSubmitImage: (path) => _sendImage(path: path, sendAs: user.userType!),
+                          onSubmitAppointment: user.userType == 'doctor'
+                              ? (start, end) => _makeAppointment(
+                                  start: start,
+                                  end: end,
+                                  doctorUid: user.uid!,
+                                  patientUid: widget.chat.patient.uid!)
+                              : null,
                         )
                       ],
                     )),

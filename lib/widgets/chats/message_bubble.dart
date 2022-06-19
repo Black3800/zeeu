@@ -1,7 +1,10 @@
+import 'package:ZeeU/models/appointment.dart';
 import 'package:ZeeU/utils/palette.dart';
 import 'package:ZeeU/widgets/cloud_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class MessageBubble extends StatelessWidget {
   MessageBubble({
@@ -37,6 +40,32 @@ class MessageBubble extends StatelessWidget {
         final data = snapshot.data;
         return Image(
           image: NetworkImage(data!)
+        );
+      }
+    ),
+    'appointment': (id) => FutureBuilder<DocumentSnapshot<Appointment>>(
+      future: FirebaseFirestore.instance
+                .collection('appointments')
+                .withConverter<Appointment>(
+                    fromFirestore: (snapshots, _) => Appointment.fromJson(snapshots.data()!),
+                    toFirestore: (appointment, _) => appointment.toJson())
+                .doc(id)
+                .get(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(
+            child: Text(snapshot.error.toString()),
+          );
+        }
+
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final data = snapshot.requireData.data()!;
+        return Text(
+          "Appointment on ${DateFormat('yMMMd').add_Hm().format(data.start)}",
+          style: const TextStyle(fontStyle: FontStyle.italic),
         );
       }
     )
