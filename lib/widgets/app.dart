@@ -1,6 +1,7 @@
 import 'package:ZeeU/models/app_user.dart';
 import 'package:ZeeU/models/user_state.dart';
 import 'package:ZeeU/pages/chat_page.dart';
+import 'package:ZeeU/pages/doctor_page.dart';
 import 'package:ZeeU/pages/home_page.dart';
 import 'package:ZeeU/pages/message_page.dart';
 import 'package:ZeeU/pages/search_page.dart';
@@ -80,9 +81,10 @@ class AppState extends State<App> {
     routeBuilders = {
       TabRoutes.home: (_) => HomePage(changeTab: _selectTab),
       TabRoutes.chats: (_) => ChatPage(notifyRouteChange: _handleRouteChange),
-      TabRoutes.search: (_) => const SearchPage(),
+      TabRoutes.search: (_) => SearchPage(notifyRouteChange: _handleRouteChange),
       TabRoutes.settings: (_) => const SettingsPage(),
-      TabRoutes.messages: (chat) => MessagePage(chat: chat, notifyRouteChange: _handleRouteChange)
+      TabRoutes.messages: (chat) => MessagePage(chat: chat, notifyRouteChange: _handleRouteChange),
+      TabRoutes.doctors: (specialty) => DoctorPage(specialty: specialty, notifyRouteChange: _handleRouteChange)
     };
     super.initState();
   }
@@ -128,6 +130,8 @@ class AppState extends State<App> {
             return MaterialPageRoute(builder: (_) => const SizedBox());
           } else if (routeName == '/messages') {
             return MaterialPageRoute(builder: (_) => routeBuilders['/messages'](routeSettings.arguments));
+          } else if (routeName == '/doctors') {
+            return MaterialPageRoute(builder: (_) => routeBuilders['/doctors'](routeSettings.arguments));
           }
           return MaterialPageRoute(
             builder: (context) => routeBuilders[routeName]!(context),

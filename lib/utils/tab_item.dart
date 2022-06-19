@@ -9,6 +9,7 @@ class TabRoutes {
   static const String search = '/search';
   static const String settings = '/settings';
   static const String messages = '/messages';
+  static const String doctors = '/doctors';
 }
 
 const Map<TabItem, String> tabName = {
@@ -37,6 +38,7 @@ const tabBackgroundImg = {
   TabRoutes.chats:                'assets/Light-bg.png',
   '${TabRoutes.chats}/messages':  'assets/Light-bg.png',
   TabRoutes.search:               'assets/Light-bg.png',
+  '${TabRoutes.search}/doctors': 'assets/Light-bg.png',
   TabRoutes.settings:             'assets/Light-bg.png'
 };
 
