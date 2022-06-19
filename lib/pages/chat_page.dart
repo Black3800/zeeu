@@ -15,6 +15,17 @@ extension DateOnlyCompare on DateTime {
   }
 }
 
+extension on Query<Chat> {
+  Query<Chat> search(String pattern)  {
+    if (true || pattern.isEmpty) {
+      return orderBy('latest_message_time', descending: true);
+    } else {
+      return where('latest_message_text', isGreaterThanOrEqualTo: pattern)
+            .where('latest_message_text', isLessThanOrEqualTo: pattern);
+    }
+  }
+}
+
 class ChatPage extends StatefulWidget {
   const ChatPage({
     Key? key,
@@ -35,6 +46,8 @@ class _ChatPageState extends State<ChatPage> {
         fromFirestore: (snapshots, _) => Chat.fromJson(snapshots.data()!, id: snapshots.reference.id),
         toFirestore: (chat, _) => chat.toJson()
       );
+  
+  String searchString = '';
 
   @override
   Widget build(BuildContext context) {
@@ -51,13 +64,11 @@ class _ChatPageState extends State<ChatPage> {
         body: SingleChildScrollView(
           child: Column(
             children: [
-              SearchBar(onSubmit: (value) {
-                print(value);
-              }),
+              SearchBar(onSubmit: (value) => setState(() => searchString = value)),
               if (user.uid != null)
                 StreamBuilder<QuerySnapshot<Chat>>(
                   stream: chatRef
-                            .where(user.userType!, isEqualTo: user.uid)
+                            .search(searchString)
                             .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
@@ -71,49 +82,61 @@ class _ChatPageState extends State<ChatPage> {
                     }
 
                     final docs = snapshot.requireData.docs;
-                    final chats = [];
+                    List<Chat> chats = [];
                     for (final chat in docs) {
                       chats.add(chat.data());
                     }
+                    
+                    final cards = chats
+                      .map<Widget>((c) => FutureBuilder<DocumentSnapshot>(
+                        future: FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(user.userType == 'patient'
+                                      ? c.doctor.uid
+                                      : c.patient.uid)
+                                  .get(),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasError) {
+                            return Center(
+                              child: Text(snapshot.error.toString()),
+                            );
+                          }
+
+                          if (!snapshot.hasData) {
+                            return const Center(child: CircularProgressIndicator());
+                          }
+
+                          final data = snapshot.requireData.data() as Map;
+                          final chatUser = AppUser.fromJson(data);
+                          final chatName = '${chatUser.firstName} ${chatUser.lastName}';
+
+                          if (c.latestMessageText.toLowerCase()
+                                  .contains(searchString.toLowerCase())
+                              ||
+                              chatName.toLowerCase()
+                                  .contains(searchString.toLowerCase())
+                          ) {
+                            return ChatCard(
+                              image: chatUser.img!,
+                              name: chatName,
+                              text: c.latestMessageText,
+                              time: _formatChatTime(c.latestMessageTime),
+                              seen: user.userType == 'doctor'
+                                    ? c.latestMessageSeenDoctor
+                                    : c.latestMessageSeenPatient,
+                              onTap: () {
+                                Navigator.of(context).pushNamed('/messages', arguments: c);
+                                widget.notifyRouteChange('push', '/messages');
+                              },
+                            );
+                          }
+                          return Container();
+                        }
+                      ))
+                      .toList();
 
                     return Column(
-                      children: chats
-                                  .map<Widget>((c) => FutureBuilder<DocumentSnapshot>(
-                                    future: FirebaseFirestore.instance
-                                              .collection('users')
-                                              .doc(user.userType == 'patient'
-                                                  ? c.doctor.uid
-                                                  : c.patient.uid)
-                                              .get(),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.hasError) {
-                                        return Center(
-                                          child: Text(snapshot.error.toString()),
-                                        );
-                                      }
-
-                                      if (!snapshot.hasData) {
-                                        return const Center(child: CircularProgressIndicator());
-                                      }
-
-                                      final data = snapshot.requireData.data() as Map;
-                                      final chatUser = AppUser.fromJson(data);
-                                      return ChatCard(
-                                        image: chatUser.img!,
-                                        name: '${chatUser.firstName} ${chatUser.lastName}',
-                                        text: c.latestMessageText,
-                                        time: _formatChatTime(c.latestMessageTime),
-                                        seen: user.userType == 'doctor'
-                                              ? c.latestMessageSeenDoctor
-                                              : c.latestMessageSeenPatient,
-                                        onTap: () {
-                                          Navigator.of(context).pushNamed('/messages', arguments: c);
-                                          widget.notifyRouteChange('push', '/messages');
-                                        },
-                                      );
-                                    }
-                                  ))
-                                  .toList()
+                      children: cards
                     );
                   }
                 ),
