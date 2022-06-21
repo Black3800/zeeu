@@ -13,25 +13,45 @@ class SignupSuccessPage extends StatefulWidget {
 class _SignupSuccessPageState extends State<SignupSuccessPage> {
   @override
   void initState() {
-    Timer(
-      const Duration(seconds: 2),
-      () => Navigator.of(context).popUntil(ModalRoute.withName('/login'))
-    );
+    Timer(const Duration(seconds: 2),
+        () => Navigator.of(context).popUntil(ModalRoute.withName('/login')));
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-            onWillPop: () async => false,
-            child: SafeArea(
-              child: Scaffold(
-                  backgroundColor: Palette.white,
-                  body: Center(
-                    child: const Text('Success')
-                  )
-              )
-            )
-          );
+        onWillPop: () async => false,
+        child: SafeArea(
+            child: Scaffold(
+          body: Container(
+            height: double.infinity,
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                  image: AssetImage('assets/Bg.png'), fit: BoxFit.cover),
+            ),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Success!',
+                    style: TextStyle(fontSize: 20, color: Palette.jet),
+                  ),
+                  const SizedBox(
+                    height: 80,
+                  ),
+                  Image.asset(
+                    'assets/checked.png',
+                    fit: BoxFit.fitWidth,
+                    width: 92.5,
+                    height: 92.5,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        )));
   }
 }

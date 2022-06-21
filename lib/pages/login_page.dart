@@ -129,7 +129,7 @@ class _LoginPageState extends State<LoginPage> {
                                   decoration: const InputDecoration(
                                     labelText: 'Email',
                                     labelStyle: TextStyle(
-                                        fontSize: 12,
+                                        fontSize: 14,
                                         fontWeight: FontWeight.w400),
                                   ),
                                   textInputAction: TextInputAction.next,
@@ -143,7 +143,7 @@ class _LoginPageState extends State<LoginPage> {
                                 decoration: const InputDecoration(
                                   labelText: 'Password',
                                   labelStyle: TextStyle(
-                                      fontSize: 12,
+                                      fontSize: 14,
                                       fontWeight: FontWeight.w400),
                                 ),
                                 obscureText: true,
@@ -162,7 +162,7 @@ class _LoginPageState extends State<LoginPage> {
                                       fontWeight: FontWeight.w600,
                                       decoration: TextDecoration.underline,
                                       color: Palette.jet,
-                                      fontSize: 12),
+                                      fontSize: 13),
                                 ),
                               )
                             ])))

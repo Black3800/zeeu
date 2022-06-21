@@ -49,9 +49,12 @@ class _LoginDetailsState extends State<LoginDetails> {
 
   @override
   void initState() {
-    _emailController = TextEditingController(text: Provider.of<SignupState>(context, listen: false).email);
-    _passwordController = TextEditingController(text: Provider.of<SignupState>(context, listen: false).password);
-    _confirmController = TextEditingController(text: Provider.of<SignupState>(context, listen: false).confirmPassword);
+    _emailController = TextEditingController(
+        text: Provider.of<SignupState>(context, listen: false).email);
+    _passwordController = TextEditingController(
+        text: Provider.of<SignupState>(context, listen: false).password);
+    _confirmController = TextEditingController(
+        text: Provider.of<SignupState>(context, listen: false).confirmPassword);
     super.initState();
   }
 
@@ -81,31 +84,54 @@ class _LoginDetailsState extends State<LoginDetails> {
             controller: _emailController,
             validator: _validateEmail,
             focusNode: _emailNode,
-            decoration: const InputDecoration(labelText: 'Email'),
+            decoration: const InputDecoration(
+              labelText: 'Email',
+              labelStyle: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
             textInputAction: TextInputAction.next,
-            onChanged: (value) => Provider.of<SignupState>(context, listen: false).email = value,
+            onChanged: (value) =>
+                Provider.of<SignupState>(context, listen: false).email = value,
             onFieldSubmitted: (_) =>
                 FocusScope.of(context).requestFocus(_passwordNode)),
-        const SizedBox(height: 15),
+        const SizedBox(height: 20),
         TextFormField(
             controller: _passwordController,
             validator: _validatePassword,
             focusNode: _passwordNode,
-            decoration: const InputDecoration(labelText: 'Password'),
+            decoration: const InputDecoration(
+              labelText: 'Password',
+              labelStyle: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
             textInputAction: TextInputAction.next,
             obscureText: true,
-            onChanged: (value) => Provider.of<SignupState>(context, listen: false).password = value,
+            onChanged: (value) =>
+                Provider.of<SignupState>(context, listen: false).password =
+                    value,
             onFieldSubmitted: (_) =>
                 FocusScope.of(context).requestFocus(_confirmNode)),
-        const SizedBox(height: 15),
+        const SizedBox(height: 20),
         TextFormField(
             controller: _confirmController,
             validator: _validateConfirm,
             focusNode: _confirmNode,
-            decoration: const InputDecoration(labelText: 'Confirm password'),
+            decoration: const InputDecoration(
+              labelText: 'Confirm password',
+              labelStyle: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
             textInputAction: TextInputAction.done,
             obscureText: true,
-            onChanged: (value) => Provider.of<SignupState>(context, listen: false).confirmPassword = value),
+            onChanged: (value) =>
+                Provider.of<SignupState>(context, listen: false)
+                    .confirmPassword = value),
         const SizedBox(height: 100)
       ]),
     );

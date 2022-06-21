@@ -29,121 +29,131 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   final appointmentRef = FirebaseFirestore.instance
       .collection('appointments')
       .withConverter<Appointment>(
-        fromFirestore: (snapshots, _) => Appointment.fromJson(snapshots.data()!),
-        toFirestore: (appointment, _) => appointment.toJson()
-      );
+          fromFirestore: (snapshots, _) =>
+              Appointment.fromJson(snapshots.data()!),
+          toFirestore: (appointment, _) => appointment.toJson());
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<UserState>(builder: (context, user, child) =>
-      Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(15),
-            child: Column(
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Welcome back\n${user.firstName}! 😄',
-                    style: GoogleFonts.roboto(
-                      color: Palette.jet,
-                      fontSize: 32,
-                      fontWeight: FontWeight.w900
-                    )
-                  ),
-                ),
-                HeroCard(
-                  text: user.userType == 'patient' ? 'How are you feeling today?' : 'Thanks for your hard work!',
-                  buttonText: user.userType == 'patient' ?  'Consult now' : 'See patients',
-                  onPressed: () => widget.changeTab(TabItem.chats),
-                  image: const AssetImage('assets/Heart.png')
-                ),
-                Text('Upcoming', style: Theme.of(context).textTheme.headline2?.apply(color: Palette.jet)),
-                if (user.uid != null)
-                  StreamBuilder<QuerySnapshot<Appointment>>(
-                    stream: appointmentRef
+    return Consumer<UserState>(
+        builder: (context, user, child) => Scaffold(
+            backgroundColor: Colors.transparent,
+            body: SingleChildScrollView(
+              child: Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text('Welcome back\n${user.firstName}! 😄',
+                            style: GoogleFonts.roboto(
+                                color: Palette.jet,
+                                fontSize: 32,
+                                fontWeight: FontWeight.w900)),
+                      ),
+                      HeroCard(
+                          text: user.userType == 'patient'
+                              ? 'How are you feeling today?'
+                              : 'Thanks for your hard work!',
+                          buttonText: user.userType == 'patient'
+                              ? 'Consult now'
+                              : 'See patients',
+                          onPressed: () => widget.changeTab(TabItem.chats),
+                          image: const AssetImage('assets/Heart.png')),
+                      Text('Upcoming',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline2
+                              ?.apply(color: Palette.jet)),
+                      if (user.uid != null)
+                        StreamBuilder<QuerySnapshot<Appointment>>(
+                            stream: appointmentRef
                                 .where(user.userType!, isEqualTo: user.uid)
                                 .where('start', isGreaterThan: Timestamp.now())
                                 .orderBy('start')
                                 .snapshots(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasError) {
-                        return Center(
-                          child: Text(snapshot.error.toString()),
-                        );
-                      }
+                            builder: (context, snapshot) {
+                              if (snapshot.hasError) {
+                                return Center(
+                                  child: Text(snapshot.error.toString()),
+                                );
+                              }
 
-                      if (!snapshot.hasData) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
+                              if (!snapshot.hasData) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              }
 
-                      final docs = snapshot.requireData.docs;
-                      final appointments = [];
-                      var previousAppointmentDate = '';
-                      for (var i = 0; i < docs.length; i++) {
-                        final a = docs[i].data();
-                        final date = _formatAppointmentDate(a.start);
-                        if (date != previousAppointmentDate) {
-                          appointments.add(AppointmentDivider(text: date));
-                        }
-                        appointments.add(a);
-                        previousAppointmentDate = date;
-                      }
+                              final docs = snapshot.requireData.docs;
+                              final appointments = [];
+                              var previousAppointmentDate = '';
+                              for (var i = 0; i < docs.length; i++) {
+                                final a = docs[i].data();
+                                final date = _formatAppointmentDate(a.start);
+                                if (date != previousAppointmentDate) {
+                                  appointments
+                                      .add(AppointmentDivider(text: date));
+                                }
+                                appointments.add(a);
+                                previousAppointmentDate = date;
+                              }
 
-                      if (appointments.isEmpty) {
-                        return const Center(
-                          child: Text('Nothing')
-                        );
-                      }
+                              if (appointments.isEmpty) {
+                                return const Center(child: Text('Nothing'));
+                              }
 
-                      return Column(
-                        children: appointments
-                                    .map<Widget>((a) => a is AppointmentDivider ? a : FutureBuilder<DocumentSnapshot>(
-                                      future: FirebaseFirestore.instance
-                                                .collection('users')
-                                                .doc(user.userType == 'patient'
-                                                    ? a.doctor.uid
-                                                    : a.patient.uid)
-                                                .get(),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.hasError) {
-                                          return Center(
-                                            child: Text(snapshot.error.toString()),
-                                          );
-                                        }
+                              return Column(
+                                  children: appointments
+                                      .map<Widget>((a) => a
+                                              is AppointmentDivider
+                                          ? a
+                                          : FutureBuilder<DocumentSnapshot>(
+                                              future: FirebaseFirestore.instance
+                                                  .collection('users')
+                                                  .doc(
+                                                      user.userType == 'patient'
+                                                          ? a.doctor.uid
+                                                          : a.patient.uid)
+                                                  .get(),
+                                              builder: (context, snapshot) {
+                                                if (snapshot.hasError) {
+                                                  return Center(
+                                                    child: Text(snapshot.error
+                                                        .toString()),
+                                                  );
+                                                }
 
-                                        if (!snapshot.hasData) {
-                                          return const Center(child: CircularProgressIndicator());
-                                        }
+                                                if (!snapshot.hasData) {
+                                                  return const Center(
+                                                      child:
+                                                          CircularProgressIndicator());
+                                                }
 
-                                        final data = snapshot.requireData.data() as Map;
-                                        final user = AppUser.fromJson(data);
-                                        return AppointmentCard(
-                                          image: user.img!,
-                                          name: '${user.firstName} ${user.lastName}',
-                                          institute: user.institute ?? 'Patient',
-                                          startTime: DateFormat('Hm').format(a.start),
-                                          endTime: DateFormat('Hm').format(a.end)
-                                        );
-                                      }
-                                    ))
-                                    .toList()
-                      );
-                    }
-                  ),
-                const SizedBox(height: 50)
-              ],
-            )
-          ),
-        )
-      )
-    );
+                                                final data =
+                                                    snapshot.requireData.data()
+                                                        as Map;
+                                                final user =
+                                                    AppUser.fromJson(data);
+                                                return AppointmentCard(
+                                                    image: user.img!,
+                                                    name:
+                                                        '${user.firstName} ${user.lastName}',
+                                                    institute: user.institute ??
+                                                        'Patient',
+                                                    startTime: DateFormat('Hm')
+                                                        .format(a.start),
+                                                    endTime: DateFormat('Hm')
+                                                        .format(a.end));
+                                              }))
+                                      .toList());
+                            }),
+                      const SizedBox(height: 50)
+                    ],
+                  )),
+            )));
   }
 
   String _formatAppointmentDate(DateTime date) {
