@@ -39,10 +39,15 @@ class _ProfilePageState extends State<ProfilePage> {
     user.img = img;
     user.firstName = _firstNameController.text;
     user.lastName = _lastNameController.text;
-    user.contact = _contactController.text.isNotEmpty ? _contactController.text : null;
-    user.institute = _instituteController.text.isNotEmpty ? _instituteController.text : null;
+    user.contact =
+        _contactController.text.isNotEmpty ? _contactController.text : null;
+    user.institute =
+        _instituteController.text.isNotEmpty ? _instituteController.text : null;
     user.bio = _bioController.text.isNotEmpty ? _bioController.text : null;
-    FirebaseFirestore.instance.collection('users').doc(id).update(user.toJson());
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(id)
+        .update(user.toJson());
   }
 
   @override
@@ -52,101 +57,109 @@ class _ProfilePageState extends State<ProfilePage> {
     _firstNameController = TextEditingController(text: user.firstName);
     _lastNameController = TextEditingController(text: user.lastName);
     _contactController = TextEditingController(text: user.instance!.contact);
-    _instituteController = TextEditingController(text: user.instance!.institute);
+    _instituteController =
+        TextEditingController(text: user.instance!.institute);
     _bioController = TextEditingController(text: user.instance!.bio);
     img = user.img!;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<UserState>(builder: (context, user, child) => 
-      WillPopScope(
-        onWillPop: () async {
-          widget.notifyRouteChange('pop', '/profile');
-          return true;
-        },
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          appBar: AppBar(
-            title: const Text('Profile'),
-            centerTitle: true,
-            backgroundColor: Palette.white,
-            foregroundColor: Palette.jet,
-          ),
-          body: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(15),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    CloudImage(
-                      image: user.img!,
-                      onChanged: (path) {
-                        if (path == '') return;
-                        setState(() => img = path);
-                        _updateProfile(user.uid!);
-                      },
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _firstNameController,
-                            validator: _validateNotEmpty,
-                            decoration: InputDecoration(
-                              labelText: 'Firstname'
+    return Consumer<UserState>(
+        builder: (context, user, child) => WillPopScope(
+              onWillPop: () async {
+                widget.notifyRouteChange('pop', '/profile');
+                return true;
+              },
+              child: Scaffold(
+                  backgroundColor: Colors.transparent,
+                  appBar: AppBar(
+                    title: const Text('Profile'),
+                    centerTitle: true,
+                    backgroundColor: Palette.white,
+                    foregroundColor: Palette.jet,
+                  ),
+                  body: SingleChildScrollView(
+                    child: Padding(
+                        padding: const EdgeInsets.all(15),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(children: [
+                            CloudImage(
+                              image: user.img!,
+                              onChanged: (path) {
+                                if (path == '') return;
+                                setState(() => img = path);
+                                _updateProfile(user.uid!);
+                              },
                             ),
-                            onFieldSubmitted: (_) => _updateProfile(user.uid!),
-                          ),
-                        ),
-                        const SizedBox(width: 15),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _lastNameController,
-                            validator: _validateNotEmpty,
-                            decoration: InputDecoration(
-                              labelText: 'Lastname'
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: _firstNameController,
+                                    validator: _validateNotEmpty,
+                                    decoration: InputDecoration(
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        labelText: 'Firstname'),
+                                    onFieldSubmitted: (_) =>
+                                        _updateProfile(user.uid!),
+                                  ),
+                                ),
+                                const SizedBox(width: 15),
+                                Expanded(
+                                  child: TextFormField(
+                                      controller: _lastNameController,
+                                      validator: _validateNotEmpty,
+                                      decoration: InputDecoration(
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          labelText: 'Lastname'),
+                                      onFieldSubmitted: (_) =>
+                                          _updateProfile(user.uid!)),
+                                ),
+                              ],
                             ),
-                            onFieldSubmitted: (_) => _updateProfile(user.uid!)
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (user.userType == 'doctor')
-                      ...[
-                        TextFormField(
-                          controller: _contactController,
-                          validator: _validateNotEmpty,
-                          decoration: InputDecoration(
-                            labelText: 'Contact'
-                          ),
-                          onFieldSubmitted: (_) => _updateProfile(user.uid!)
-                        ),
-                        TextFormField(
-                          controller: _instituteController,
-                          validator: _validateNotEmpty,
-                          decoration: InputDecoration(
-                            labelText: 'Institute'
-                          ),
-                          onFieldSubmitted: (_) => _updateProfile(user.uid!)
-                        ),
-                        TextFormField(
-                          controller: _bioController,
-                          decoration: InputDecoration(
-                            labelText: 'Short bio'
-                          ),
-                          maxLines: 4,
-                          onFieldSubmitted: (_) => _updateProfile(user.uid!)
-                        )
-                      ]
-                  ]
-                ),
-              )
-            ),
-          )
-        ),
-      )
-    );
+                            if (user.userType == 'doctor') ...[
+                              TextFormField(
+                                  controller: _contactController,
+                                  validator: _validateNotEmpty,
+                                  decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      labelText: 'Contact'),
+                                  onFieldSubmitted: (_) =>
+                                      _updateProfile(user.uid!)),
+                              TextFormField(
+                                  controller: _instituteController,
+                                  validator: _validateNotEmpty,
+                                  decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      labelText: 'Institute'),
+                                  onFieldSubmitted: (_) =>
+                                      _updateProfile(user.uid!)),
+                              TextFormField(
+                                  controller: _bioController,
+                                  decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      labelText: 'Short bio'),
+                                  maxLines: 4,
+                                  onFieldSubmitted: (_) =>
+                                      _updateProfile(user.uid!))
+                            ]
+                          ]),
+                        )),
+                  )),
+            ));
   }
 }
