@@ -1,10 +1,15 @@
+// import 'dart:html';
+
 import 'package:ZeeU/models/user_state.dart';
 import 'package:ZeeU/utils/palette.dart';
 import 'package:ZeeU/widgets/cloud_image.dart';
+import 'package:ZeeU/widgets/cta_button.dart';
+import 'package:ZeeU/widgets/gradient_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -75,16 +80,18 @@ class _ProfilePageState extends State<ProfilePage> {
                   backgroundColor: Colors.transparent,
                   appBar: AppBar(
                     title: const Text('Profile'),
+                    elevation: 0,
                     centerTitle: true,
                     backgroundColor: Palette.white,
                     foregroundColor: Palette.jet,
                   ),
                   body: SingleChildScrollView(
                     child: Padding(
-                        padding: const EdgeInsets.all(15),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(children: [
+                      padding: const EdgeInsets.all(20),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
                             CloudImage(
                               image: user.img!,
                               onChanged: (path) {
@@ -100,11 +107,13 @@ class _ProfilePageState extends State<ProfilePage> {
                                     controller: _firstNameController,
                                     validator: _validateNotEmpty,
                                     decoration: InputDecoration(
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        labelText: 'Firstname'),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      labelText: 'Firstname',
+                                      fillColor: Colors.white,
+                                      filled: true,
+                                    ),
                                     onFieldSubmitted: (_) =>
                                         _updateProfile(user.uid!),
                                   ),
@@ -115,11 +124,14 @@ class _ProfilePageState extends State<ProfilePage> {
                                       controller: _lastNameController,
                                       validator: _validateNotEmpty,
                                       decoration: InputDecoration(
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          labelText: 'Lastname'),
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        labelText: 'Lastname',
+                                        fillColor: Colors.white,
+                                        filled: true,
+                                      ),
                                       onFieldSubmitted: (_) =>
                                           _updateProfile(user.uid!)),
                                 ),
@@ -130,36 +142,109 @@ class _ProfilePageState extends State<ProfilePage> {
                                   controller: _contactController,
                                   validator: _validateNotEmpty,
                                   decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      labelText: 'Contact'),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    labelText: 'Contact',
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                  ),
                                   onFieldSubmitted: (_) =>
                                       _updateProfile(user.uid!)),
                               TextFormField(
                                   controller: _instituteController,
                                   validator: _validateNotEmpty,
                                   decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      labelText: 'Institute'),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    labelText: 'Institute',
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                  ),
                                   onFieldSubmitted: (_) =>
                                       _updateProfile(user.uid!)),
                               TextFormField(
                                   controller: _bioController,
                                   decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      labelText: 'Short bio'),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    labelText: 'Short bio',
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                  ),
                                   maxLines: 4,
                                   onFieldSubmitted: (_) =>
-                                      _updateProfile(user.uid!))
-                            ]
-                          ]),
-                        )),
+                                      _updateProfile(user.uid!)),
+                            ],
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                cancelButton(),
+                                saveButton(),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   )),
             ));
+  }
+
+  Widget cancelButton() {
+    return ElevatedButton(
+      onPressed: () {},
+      style: ElevatedButton.styleFrom(
+        shadowColor: Colors.white38,
+        primary: Color.fromARGB(0, 255, 255, 255),
+        fixedSize: const Size(149, 44),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+            color: Color(0xff8038DD),
+          ),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Icon(
+            Icons.close,
+            color: Color(0xff8038DD),
+          ),
+          Text(
+            'Cancel',
+            style: TextStyle(
+              color: Color(0xff8038DD),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget saveButton() {
+    return ElevatedButton(
+      onPressed: () {},
+      style: ElevatedButton.styleFrom(
+        primary: Color(0xff8038DD),
+        fixedSize: const Size(149, 44),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Icon(Icons.save),
+          Text(
+            'Save',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          )
+        ],
+      ),
+    );
   }
 }
