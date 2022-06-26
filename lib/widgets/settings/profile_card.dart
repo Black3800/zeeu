@@ -6,19 +6,27 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ProfileCard extends StatelessWidget {
-  const ProfileCard({ Key? key, required this.notifyRouteChange }) : super(key: key);
+  const ProfileCard({Key? key, required this.notifyRouteChange})
+      : super(key: key);
 
   final Function(String, String) notifyRouteChange;
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<UserState>(builder: (context, user, child) =>
-      Container(
+    return Consumer<UserState>(
+      builder: (context, user, child) => Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(10),
-        decoration: const BoxDecoration(
-          color: Palette.white
-        ),
+        padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(
+            color: Palette.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 5,
+                blurRadius: 7,
+              ),
+            ]),
         child: Column(
           children: [
             if (user.img != null) CloudImage(image: user.img!, readOnly: true),
@@ -31,8 +39,9 @@ class ProfileCard extends StatelessWidget {
               text: 'Edit profile',
               icon: Icons.edit,
             )
-          ]),
-      )
+          ],
+        ),
+      ),
     );
   }
 }
