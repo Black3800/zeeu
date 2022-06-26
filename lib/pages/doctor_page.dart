@@ -81,7 +81,7 @@ class _DoctorPageState extends State<DoctorPage> {
                 child: Scaffold(
                     backgroundColor: Colors.transparent,
                     appBar: AppBar(
-                        backgroundColor: Colors.transparent,
+                        backgroundColor: Palette.white,
                         foregroundColor: Palette.jet,
                         title: Text(
                           widget.specialty,
@@ -121,21 +121,28 @@ class _DoctorPageState extends State<DoctorPage> {
                         }
 
                         return Column(
-                            children: doctors
-                                .map((e) => DoctorCard(
-                                      image: e.img!,
-                                      name: '${e.firstName} ${e.lastName}',
-                                      specialty: e.specialty!,
-                                      institute: e.institute!,
-                                      contact: e.contact!,
-                                      onTap: user.userType == 'patient'
-                                          ? (ctx) => createChat(
-                                              ctx: ctx,
-                                              doctorUid: e.uid!,
-                                              patientUid: user.uid!)
-                                          : null,
-                                    ))
-                                .toList());
+                          children: [
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            Column(
+                                children: doctors
+                                    .map((e) => DoctorCard(
+                                          image: e.img!,
+                                          name: '${e.firstName} ${e.lastName}',
+                                          specialty: e.specialty!,
+                                          institute: e.institute!,
+                                          contact: e.contact!,
+                                          onTap: user.userType == 'patient'
+                                              ? (ctx) => createChat(
+                                                  ctx: ctx,
+                                                  doctorUid: e.uid!,
+                                                  patientUid: user.uid!)
+                                              : null,
+                                        ))
+                                    .toList()),
+                          ],
+                        );
                       },
                     )))));
   }

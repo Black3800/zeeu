@@ -46,6 +46,9 @@ class _HomePageState extends State<HomePage> {
                   padding: const EdgeInsets.all(15),
                   child: Column(
                     children: [
+                      const SizedBox(
+                        height: 30,
+                      ),
                       Align(
                         alignment: Alignment.centerLeft,
                         child: Text('Welcome back\n${user.firstName}! 😄',
@@ -53,6 +56,9 @@ class _HomePageState extends State<HomePage> {
                                 color: Palette.jet,
                                 fontSize: 32,
                                 fontWeight: FontWeight.w900)),
+                      ),
+                      const SizedBox(
+                        height: 40,
                       ),
                       HeroCard(
                           text: user.userType == 'patient'
@@ -63,11 +69,20 @@ class _HomePageState extends State<HomePage> {
                               : 'See patients',
                           onPressed: () => widget.changeTab(TabItem.chats),
                           image: const AssetImage('assets/Heart.png')),
-                      Text('Upcoming',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline2
-                              ?.apply(color: Palette.jet)),
+                      const SizedBox(
+                        height: 25,
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text('Upcoming',
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline2
+                                ?.apply(color: Palette.jet)),
+                      ),
+                      const SizedBox(
+                        height: 15,
+                      ),
                       if (user.uid != null)
                         StreamBuilder<QuerySnapshot<Appointment>>(
                             stream: appointmentRef
