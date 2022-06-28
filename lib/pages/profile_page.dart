@@ -79,7 +79,13 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Scaffold(
                   backgroundColor: Colors.transparent,
                   appBar: AppBar(
-                    title: const Text('Profile'),
+                    title: Text(
+                      'Profile',
+                      style: GoogleFonts.roboto(
+                          color: Palette.jet,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800),
+                    ),
                     elevation: 0,
                     centerTitle: true,
                     backgroundColor: Palette.white,

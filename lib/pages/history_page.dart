@@ -6,6 +6,7 @@ import 'package:ZeeU/widgets/home/appointment_card.dart';
 import 'package:ZeeU/widgets/home/appointment_divider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -32,7 +33,13 @@ class HistoryPage extends StatelessWidget {
                   backgroundColor: Colors.transparent,
                   appBar: AppBar(
                     elevation: 0,
-                    title: const Text('History'),
+                    title: Text(
+                      'History',
+                      style: GoogleFonts.roboto(
+                          color: Palette.jet,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800),
+                    ),
                     centerTitle: true,
                     backgroundColor: Palette.white,
                     foregroundColor: Palette.jet,
