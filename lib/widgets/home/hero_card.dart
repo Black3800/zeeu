@@ -55,7 +55,7 @@ class HeroCard extends StatelessWidget {
                         const SizedBox(
                           height: 30,
                         ),
-                        // CtaButton(onPressed: onPressed, text: buttonText)
+                        CtaButton(onPressed: onPressed, text: buttonText)
                       ]),
                 ),
                 Expanded(
