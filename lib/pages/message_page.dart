@@ -196,7 +196,7 @@ class _MessagePageState extends State<MessagePage> {
                                           top: 0,
                                           right: 20,
                                           left: 20,
-                                          bottom: 20),
+                                          bottom: 30),
                                       child: Row(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.center,
