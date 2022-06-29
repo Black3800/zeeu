@@ -27,14 +27,14 @@ class _SearchPageState extends State<SearchPage> {
                     clipper: GreenClipper(),
                     child: Container(
                       color: Palette.honeydew,
-                      height: 135,
+                      height: 145,
                     ),
                   ),
                   ClipPath(
                     clipper: WhiteClipper(),
                     child: Container(
                       color: Palette.white,
-                      height: 130,
+                      height: 140,
                       child: Row(
                         children: [
                           const SizedBox(
@@ -93,13 +93,13 @@ class WhiteClipper extends CustomClipper<Path> {
   double pi = 3.14;
   @override
   Path getClip(Size size) {
-    final roundingHeight = size.height * 3 / 5;
+    final roundingHeight = size.height * 4 / 5;
 
     final filledRectangle =
         Rect.fromLTRB(0, 0, size.width, size.height - roundingHeight);
 
     final roundingRectangle = Rect.fromLTRB(
-        -70, size.height - roundingHeight * 2, size.width + 70, size.height);
+        -75, size.height - roundingHeight * 2, size.width + 75, size.height);
 
     final path = Path();
     path.addRect(filledRectangle);
@@ -119,13 +119,13 @@ class GreenClipper extends CustomClipper<Path> {
   double pi = 3.14159265359;
   @override
   Path getClip(Size size) {
-    final roundingHeight = size.height * 3 / 5;
+    final roundingHeight = size.height * 4 / 5;
 
     final filledRectangle =
         Rect.fromLTRB(0, 0, size.width, size.height - roundingHeight);
 
     final roundingRectangle = Rect.fromLTRB(
-        -70, size.height - roundingHeight * 2, size.width + 85, size.height);
+        -75, size.height - roundingHeight * 2, size.width + 90, size.height);
 
     final path = Path();
     path.addRect(filledRectangle);
