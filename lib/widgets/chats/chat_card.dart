@@ -133,9 +133,13 @@ class ChatCard extends StatelessWidget {
   }
 
   Widget disc() => Container(
-        width: 10,
-        height: 10,
-        decoration: const BoxDecoration(
-            shape: BoxShape.circle, color: Palette.aquamarine),
+        width: 12,
+        height: 12,
+        decoration: const BoxDecoration(boxShadow: [
+          BoxShadow(
+              color: Color.fromRGBO(130, 245, 195, 0.5),
+              offset: Offset(1, 2),
+              blurRadius: 5)
+        ], shape: BoxShape.circle, color: Palette.aquamarine),
       );
 }
