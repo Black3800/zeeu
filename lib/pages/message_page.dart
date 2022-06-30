@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:ZeeU/models/app_user.dart';
 import 'package:ZeeU/models/chat.dart';
 import 'package:ZeeU/models/message.dart';
@@ -45,17 +47,41 @@ class _MessagePageState extends State<MessagePage> {
   Future<void> _showInfo(AppUser doctor) async {
     await showDialog(
         context: context,
-        builder: (context) => AlertDialog(
+        builder: (BuildContext context) => AlertDialog(
               content: Container(
                 constraints: const BoxConstraints(maxHeight: 200),
-                child: Column(children: [
-                  const Text('Institute:'),
-                  Text(doctor.institute!),
-                  const Text('Contact:'),
-                  Text(doctor.contact!),
-                  const Text('Short bio:'),
-                  Text(doctor.bio ?? '-')
-                ]),
+                child: SingleChildScrollView(
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Institute:',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text(doctor.institute!),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        const Text(
+                          'Contact:',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text(doctor.contact!),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        const Text(
+                          'Short bio:',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          doctor.bio ?? '-',
+                          textAlign: TextAlign.justify,
+                        )
+                      ]),
+                ),
               ),
               actions: [
                 TextButton(
