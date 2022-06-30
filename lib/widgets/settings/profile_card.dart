@@ -52,7 +52,7 @@ class ProfileCard extends StatelessWidget {
                 ),
               ),
             const SizedBox(
-              height: 20,
+              height: 15,
             ),
             Text(
               '${user.firstName} ${user.lastName}',
@@ -62,7 +62,7 @@ class ProfileCard extends StatelessWidget {
                   fontWeight: FontWeight.w700),
             ),
             const SizedBox(
-              height: 20,
+              height: 15,
             ),
             CtaButton(
               onPressed: () {

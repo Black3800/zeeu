@@ -110,8 +110,8 @@ class _CloudImageState extends State<CloudImage> {
                       top: position,
                       left: position,
                       child: Container(
-                          height: widget.radius / 3,
-                          width: widget.radius / 3,
+                          height: widget.radius / 3.5,
+                          width: widget.radius / 3.5,
                           decoration: const BoxDecoration(
                             shape: BoxShape.circle,
                             color: Palette.aquamarine,
@@ -121,9 +121,8 @@ class _CloudImageState extends State<CloudImage> {
                               icon: const Icon(Icons.camera_alt),
                               iconSize: widget.radius / 6,
                               onPressed: () => Upload.pickImage(
-                                folder: widget.folder,
-                                onSuccess: widget.onChanged
-                              ),
+                                  folder: widget.folder,
+                                  onSuccess: widget.onChanged),
                               color: Palette.white,
                             ),
                           ))),

@@ -93,7 +93,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   body: SingleChildScrollView(
                     child: Padding(
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(30),
                       child: Form(
                         key: _formKey,
                         child: Column(
@@ -105,152 +105,262 @@ class _ProfilePageState extends State<ProfilePage> {
                                 setState(() => img = path);
                                 _updateProfile(user.uid!);
                               },
+                              radius: 150,
+                            ),
+                            const SizedBox(
+                              height: 30,
+                            ),
+                            Text(
+                              'Personal information',
+                              style: GoogleFonts.roboto(
+                                  color: Palette.jet,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                            const SizedBox(
+                              height: 30,
                             ),
                             Row(
                               children: [
                                 Expanded(
-                                  child: TextFormField(
-                                    controller: _firstNameController,
-                                    validator: _validateNotEmpty,
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      labelText: 'Firstname',
-                                      fillColor: Colors.white,
-                                      filled: true,
+                                  child: Container(
+                                    decoration: const BoxDecoration(
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: Color.fromRGBO(
+                                                53, 53, 53, 0.15),
+                                            offset: Offset(2, 3),
+                                            blurRadius: 15)
+                                      ],
                                     ),
-                                    onFieldSubmitted: (_) =>
-                                        _updateProfile(user.uid!),
-                                  ),
-                                ),
-                                const SizedBox(width: 15),
-                                Expanded(
-                                  child: TextFormField(
-                                      controller: _lastNameController,
+                                    child: TextFormField(
+                                      controller: _firstNameController,
                                       validator: _validateNotEmpty,
                                       decoration: InputDecoration(
-                                        border: OutlineInputBorder(
+                                        isDense: true,
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 15.0,
+                                                horizontal: 17.0),
+                                        enabledBorder: OutlineInputBorder(
                                           borderRadius:
-                                              BorderRadius.circular(10),
+                                              BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: Palette.gray.shade300,
+                                            width: 0.5,
+                                          ),
                                         ),
-                                        labelText: 'Lastname',
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide: const BorderSide(
+                                            color: Palette.gray,
+                                            width: 0.5,
+                                          ),
+                                        ),
+                                        labelText: 'Firstname',
+                                        labelStyle: const TextStyle(
+                                            color: Palette.gray, fontSize: 18),
                                         fillColor: Colors.white,
                                         filled: true,
                                       ),
                                       onFieldSubmitted: (_) =>
-                                          _updateProfile(user.uid!)),
+                                          _updateProfile(user.uid!),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 15),
+                                Expanded(
+                                  child: Container(
+                                    decoration: const BoxDecoration(
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: Color.fromRGBO(
+                                                53, 53, 53, 0.15),
+                                            offset: Offset(2, 3),
+                                            blurRadius: 15)
+                                      ],
+                                    ),
+                                    child: TextFormField(
+                                        controller: _lastNameController,
+                                        validator: _validateNotEmpty,
+                                        decoration: InputDecoration(
+                                          isDense: true,
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  vertical: 15.0,
+                                                  horizontal: 17.0),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                            borderSide: BorderSide(
+                                              color: Palette.gray.shade300,
+                                              width: 0.5,
+                                            ),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                            borderSide: const BorderSide(
+                                              color: Palette.gray,
+                                              width: 0.5,
+                                            ),
+                                          ),
+                                          labelText: 'Lastname',
+                                          labelStyle: const TextStyle(
+                                              color: Palette.gray,
+                                              fontSize: 18),
+                                          fillColor: Colors.white,
+                                          filled: true,
+                                        ),
+                                        onFieldSubmitted: (_) =>
+                                            _updateProfile(user.uid!)),
+                                  ),
                                 ),
                               ],
                             ),
-                            if (user.userType == 'doctor') ...[
-                              TextFormField(
-                                  controller: _contactController,
-                                  validator: _validateNotEmpty,
-                                  decoration: InputDecoration(
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    labelText: 'Contact',
-                                    fillColor: Colors.white,
-                                    filled: true,
-                                  ),
-                                  onFieldSubmitted: (_) =>
-                                      _updateProfile(user.uid!)),
-                              TextFormField(
-                                  controller: _instituteController,
-                                  validator: _validateNotEmpty,
-                                  decoration: InputDecoration(
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    labelText: 'Institute',
-                                    fillColor: Colors.white,
-                                    filled: true,
-                                  ),
-                                  onFieldSubmitted: (_) =>
-                                      _updateProfile(user.uid!)),
-                              TextFormField(
-                                  controller: _bioController,
-                                  decoration: InputDecoration(
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    labelText: 'Short bio',
-                                    fillColor: Colors.white,
-                                    filled: true,
-                                  ),
-                                  maxLines: 4,
-                                  onFieldSubmitted: (_) =>
-                                      _updateProfile(user.uid!)),
-                            ],
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                cancelButton(),
-                                saveButton(),
-                              ],
+                            const SizedBox(
+                              height: 20,
                             ),
+                            if (user.userType == 'doctor') ...[
+                              Container(
+                                decoration: const BoxDecoration(
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Color.fromRGBO(53, 53, 53, 0.15),
+                                        offset: Offset(2, 3),
+                                        blurRadius: 15)
+                                  ],
+                                ),
+                                child: TextFormField(
+                                    controller: _contactController,
+                                    validator: _validateNotEmpty,
+                                    decoration: InputDecoration(
+                                      isDense: true,
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              vertical: 20.0, horizontal: 17.0),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                        borderSide: BorderSide(
+                                          color: Palette.gray.shade300,
+                                          width: 0.5,
+                                        ),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                        borderSide: const BorderSide(
+                                          color: Palette.gray,
+                                          width: 0.5,
+                                        ),
+                                      ),
+                                      labelText: 'Contact',
+                                      labelStyle: const TextStyle(
+                                          color: Palette.gray, fontSize: 18),
+                                      fillColor: Colors.white,
+                                      filled: true,
+                                    ),
+                                    onFieldSubmitted: (_) =>
+                                        _updateProfile(user.uid!)),
+                              ),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              Container(
+                                decoration: const BoxDecoration(
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Color.fromRGBO(53, 53, 53, 0.15),
+                                        offset: Offset(2, 3),
+                                        blurRadius: 15)
+                                  ],
+                                ),
+                                child: TextFormField(
+                                    controller: _instituteController,
+                                    validator: _validateNotEmpty,
+                                    decoration: InputDecoration(
+                                      isDense: true,
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              vertical: 20.0, horizontal: 17.0),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                        borderSide: BorderSide(
+                                          color: Palette.gray.shade300,
+                                          width: 0.5,
+                                        ),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                        borderSide: const BorderSide(
+                                          color: Palette.gray,
+                                          width: 0.5,
+                                        ),
+                                      ),
+                                      labelText: 'Institute',
+                                      labelStyle: const TextStyle(
+                                          color: Palette.gray, fontSize: 18),
+                                      fillColor: Colors.white,
+                                      filled: true,
+                                    ),
+                                    onFieldSubmitted: (_) =>
+                                        _updateProfile(user.uid!)),
+                              ),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              Container(
+                                decoration: const BoxDecoration(
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Color.fromRGBO(53, 53, 53, 0.15),
+                                        offset: Offset(2, 3),
+                                        blurRadius: 15)
+                                  ],
+                                ),
+                                child: TextFormField(
+                                    controller: _bioController,
+                                    decoration: InputDecoration(
+                                      isDense: true,
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              vertical: 15.0, horizontal: 17.0),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                        borderSide: BorderSide(
+                                          color: Palette.gray.shade300,
+                                          width: 0.5,
+                                        ),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                        borderSide: const BorderSide(
+                                          color: Palette.gray,
+                                          width: 0.5,
+                                        ),
+                                      ),
+                                      labelText: 'Short bio',
+                                      labelStyle: const TextStyle(
+                                          color: Palette.gray, fontSize: 18),
+                                      fillColor: Colors.white,
+                                      filled: true,
+                                    ),
+                                    maxLines: 4,
+                                    onFieldSubmitted: (_) =>
+                                        _updateProfile(user.uid!)),
+                              ),
+                            ],
                           ],
                         ),
                       ),
                     ),
                   )),
             ));
-  }
-
-  Widget cancelButton() {
-    return ElevatedButton(
-      onPressed: () {},
-      style: ElevatedButton.styleFrom(
-        shadowColor: Colors.white38,
-        primary: Color.fromARGB(0, 255, 255, 255),
-        fixedSize: const Size(149, 44),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(
-            color: Color(0xff8038DD),
-          ),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Icon(
-            Icons.close,
-            color: Color(0xff8038DD),
-          ),
-          Text(
-            'Cancel',
-            style: TextStyle(
-              color: Color(0xff8038DD),
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget saveButton() {
-    return ElevatedButton(
-      onPressed: () {},
-      style: ElevatedButton.styleFrom(
-        primary: Color(0xff8038DD),
-        fixedSize: const Size(149, 44),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Icon(Icons.save),
-          Text(
-            'Save',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          )
-        ],
-      ),
-    );
   }
 }
