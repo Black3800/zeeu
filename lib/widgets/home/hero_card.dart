@@ -28,6 +28,12 @@ class HeroCard extends StatelessWidget {
                   offset: Offset(1, 1),
                   blurRadius: 15)
             ],
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFFFFFFFF), Color(0xFFF8F8F8), Color(0xFFF3F3F3)],
+              stops: [0.4531, 0.7656, 1],
+            ),
             border: Border.all(
               color: Palette.gray.shade50,
               width: 0.5,
