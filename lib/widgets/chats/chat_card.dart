@@ -27,7 +27,7 @@ class ChatCard extends StatelessWidget {
         height: 80,
         decoration: BoxDecoration(
           border: Border.all(
-            color: Palette.gray.shade200,
+            color: Palette.gray.shade100,
             width: 0.5,
           ),
           gradient: LinearGradient(

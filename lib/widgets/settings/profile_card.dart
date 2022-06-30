@@ -3,6 +3,7 @@ import 'package:ZeeU/utils/palette.dart';
 import 'package:ZeeU/widgets/cloud_image.dart';
 import 'package:ZeeU/widgets/cta_button.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 class ProfileCard extends StatelessWidget {
@@ -18,19 +19,51 @@ class ProfileCard extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
-            color: Palette.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
-                spreadRadius: 5,
-                blurRadius: 7,
-              ),
-            ]),
+          color: Palette.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: const [
+            BoxShadow(
+                color: Color.fromRGBO(53, 53, 53, 0.1),
+                offset: Offset(1, 1),
+                blurRadius: 15)
+          ],
+          border: Border.all(
+            color: const Color.fromRGBO(204, 204, 204, 0.1),
+            width: 0.5,
+          ),
+        ),
         child: Column(
           children: [
-            if (user.img != null) CloudImage(image: user.img!, readOnly: true),
-            Text('${user.firstName} ${user.lastName}'),
+            if (user.img != null)
+              Container(
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                        color: Color.fromRGBO(53, 53, 53, 0.1),
+                        offset: Offset(2, 3),
+                        blurRadius: 15)
+                  ],
+                ),
+                child: CloudImage(
+                  image: user.img!,
+                  readOnly: true,
+                  radius: 101,
+                ),
+              ),
+            const SizedBox(
+              height: 20,
+            ),
+            Text(
+              '${user.firstName} ${user.lastName}',
+              style: GoogleFonts.roboto(
+                  color: Palette.jet,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
             CtaButton(
               onPressed: () {
                 Navigator.of(context).pushNamed('/profile');
