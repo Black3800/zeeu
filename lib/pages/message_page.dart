@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:ZeeU/models/app_user.dart';
 import 'package:ZeeU/models/chat.dart';
 import 'package:ZeeU/models/message.dart';
@@ -58,16 +56,22 @@ class _MessagePageState extends State<MessagePage> {
                           'Institute:',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
+                        const SizedBox(
+                          height: 5,
+                        ),
                         Text(doctor.institute!),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
                         const Text(
                           'Contact:',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
+                        const SizedBox(
+                          height: 5,
+                        ),
                         Text(doctor.contact!),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
                         const Text(
@@ -76,9 +80,11 @@ class _MessagePageState extends State<MessagePage> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
+                        const SizedBox(
+                          height: 5,
+                        ),
                         Text(
-                          doctor.bio ?? '-',
-                          textAlign: TextAlign.justify,
+                          '${' ' * 4}${doctor.bio ?? '-'}',
                         )
                       ]),
                 ),
