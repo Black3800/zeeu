@@ -338,10 +338,11 @@ class _MessagePageState extends State<MessagePage> {
                         )),
                         MessageBar(
                           textController: controller,
-                          onSubmitText: () {
+                          onSubmitText: () async {
                             FocusScope.of(context).unfocus();
-                            _sendText(
+                            await _sendText(
                                 text: controller.text, sendAs: user.userType!);
+                            controller.clear();
                           },
                           onSubmitImage: (path) =>
                               _sendImage(path: path, sendAs: user.userType!),
