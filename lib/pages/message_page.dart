@@ -274,7 +274,7 @@ class _MessagePageState extends State<MessagePage> {
                                               ],
                                             ),
                                           ),
-                                          IconButton(
+                                          if (user.userType == 'patient') IconButton(
                                             onPressed: () => _showInfo(data),
                                             icon: const Icon(
                                                 Icons.more_vert_outlined,
