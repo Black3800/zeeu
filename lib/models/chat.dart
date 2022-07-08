@@ -27,7 +27,7 @@ class Chat {
     : doctor = AppUser(uid: json['doctor']),
       patient = AppUser(uid: json['patient']),
       latestMessageText = json['latest_message_text'],
-      latestMessageTime = (json['latest_message_time'] as Timestamp).toDate(),
+      latestMessageTime = Timestamp(json['latest_message_time']['_seconds'], json['latest_message_time']['_nanoseconds']).toDate(),
       latestMessageSeenDoctor = json['latest_message_seen_doctor'],
       latestMessageSeenPatient = json['latest_message_seen_patient'],
       messages = json['messages'],

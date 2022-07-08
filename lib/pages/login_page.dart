@@ -1,5 +1,6 @@
 import 'package:ZeeU/models/app_user.dart';
 import 'package:ZeeU/models/user_state.dart';
+import 'package:ZeeU/services/api_socket.dart';
 import 'package:ZeeU/utils/palette.dart';
 import 'package:ZeeU/widgets/gradient_button.dart';
 import 'package:ZeeU/widgets/zeeu_snackbar.dart';
@@ -42,6 +43,9 @@ class _LoginPageState extends State<LoginPage> {
       final user = AppUser.fromJson(doc.data() ?? {});
       user.uid = credential.user?.uid;
       user.email = credential.user?.email;
+
+      final token = await credential.user?.getIdToken();
+      Provider.of<ApiSocket>(context, listen: false).verifyToken(token!);
 
       snackBar.text = "Welcome, ${user.firstName}";
       snackBar.icon = Icons.check_circle;

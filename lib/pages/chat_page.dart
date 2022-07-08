@@ -1,6 +1,7 @@
 import 'package:ZeeU/models/app_user.dart';
 import 'package:ZeeU/models/chat.dart';
 import 'package:ZeeU/models/user_state.dart';
+import 'package:ZeeU/services/api_socket.dart';
 import 'package:ZeeU/utils/palette.dart';
 import 'package:ZeeU/widgets/chats/chat_card.dart';
 import 'package:ZeeU/widgets/chats/search_bar.dart';
@@ -48,8 +49,8 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<UserState>(
-        builder: (context, user, child) => Scaffold(
+    return Consumer2<UserState, ApiSocket>(
+        builder: (context, user, api, child) => Scaffold(
             backgroundColor: Colors.transparent,
             appBar: AppBar(
               title: Text(
@@ -74,8 +75,8 @@ class _ChatPageState extends State<ChatPage> {
                       onSubmit: (value) =>
                           setState(() => searchString = value)),
                   if (user.uid != null)
-                    StreamBuilder<QuerySnapshot<Chat>>(
-                        stream: chatRef.search(searchString).snapshots(),
+                    StreamBuilder<List<Chat>>(
+                        stream: api.chats.stream,
                         builder: (context, snapshot) {
                           if (snapshot.hasError) {
                             return Center(
@@ -88,12 +89,7 @@ class _ChatPageState extends State<ChatPage> {
                                 child: CircularProgressIndicator());
                           }
 
-                          final docs = snapshot.requireData.docs;
-                          List<Chat> chats = [];
-                          for (final chat in docs) {
-                            chats.add(chat.data());
-                          }
-
+                          final chats = snapshot.requireData;
                           final cards = chats
                               .map<Widget>((c) => FutureBuilder<
                                       DocumentSnapshot>(

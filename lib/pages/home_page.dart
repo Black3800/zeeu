@@ -1,13 +1,13 @@
 import 'package:ZeeU/models/app_user.dart';
 import 'package:ZeeU/models/appointment.dart';
 import 'package:ZeeU/models/user_state.dart';
+import 'package:ZeeU/services/api_socket.dart';
 import 'package:ZeeU/utils/palette.dart';
 import 'package:ZeeU/utils/tab_item.dart';
 import 'package:ZeeU/widgets/home/appointment_card.dart';
 import 'package:ZeeU/widgets/home/appointment_divider.dart';
 import 'package:ZeeU/widgets/home/hero_card.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -38,8 +38,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<UserState>(
-        builder: (context, user, child) => Scaffold(
+    return Consumer2<UserState, ApiSocket>(
+        builder: (context, user, api, child) => Scaffold(
             backgroundColor: Colors.transparent,
             body: SingleChildScrollView(
               child: Padding(

@@ -24,4 +24,5 @@ class Constants {
     'Hematologist': 'assets/specialty/hemato.png',
     'Nephrologist': 'assets/specialty/nephrologist.png'
   };
+  static const apiUri = 'ws://10.0.2.2:8080';
 }
