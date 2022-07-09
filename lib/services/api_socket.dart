@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:ZeeU/models/app_user.dart';
 import 'package:ZeeU/models/appointment.dart';
 import 'package:ZeeU/models/chat.dart';
 import 'package:ZeeU/utils/constants.dart';
@@ -13,6 +14,7 @@ class ApiSocket {
   late Stream<Map> decoded;
   late ChatCollectionSocket chats;
   late AppointmentCollectionSocket appointments;
+  late UserCollectionSocket users;
 
   Stream<Map> get ping async* {
     await for (final ping in decoded) {
@@ -24,6 +26,7 @@ class ApiSocket {
     decoded = channel.stream.asBroadcastStream().map((message) => jsonDecode(message));
     chats = ChatCollectionSocket(decoded, emit);
     appointments = AppointmentCollectionSocket(decoded, emit);
+    users = UserCollectionSocket(decoded, emit);
     if (token != null && token.isNotEmpty) {
       verifyToken(token);
       late StreamSubscription stopVerifySuccessSubscription;
@@ -59,34 +62,17 @@ class ApiSocket {
   }
 }
 
-class ChatCollectionSocket {
+abstract class CollectionSocket {
   final Stream<Map> _upstream;
   final Function(String, Map<String, Object>) _emit;
 
-  ChatCollectionSocket(this._upstream, this._emit);
-
-  Stream<List<Chat>> get stream async* {
-    await for (final message in _upstream) {
-      if (message['event'] == 'chats') {
-        List<Chat> chats = (message['data'] as List)
-            .map((c) => Chat.fromJson(c, id: c['id']))
-            .toList();
-        yield chats;
-      }
-    }
-  }
-
-  subscribe() {
-    _emit('subscribe', {'collection': 'chats', 'ref': 'chats'});
-  }
+  CollectionSocket(this._upstream, this._emit);
 }
 
-class AppointmentCollectionSocket {
-  final Stream<Map> _upstream;
-  final Function(String, Map<String, Object>) _emit;
-  List<Appointment>? _latest = null;
+class AppointmentCollectionSocket extends CollectionSocket {
+  List<Appointment>? _latest;
 
-  AppointmentCollectionSocket(this._upstream, this._emit);
+  AppointmentCollectionSocket(_upstream, _emit) : super(_upstream, _emit);
 
   Stream<List<Appointment>> get stream async* {
     print('listening to apppointments');
@@ -123,4 +109,52 @@ class AppointmentCollectionSocket {
             .map((a) => Appointment.fromJson(a))
             .toList();
   }
+}
+
+class ChatCollectionSocket extends CollectionSocket {
+  ChatCollectionSocket(_upstream, _emit) : super(_upstream, _emit);
+
+  Stream<List<Chat>> get stream async* {
+    await for (final message in _upstream) {
+      if (message['event'] == 'chats') {
+        List<Chat> chats = (message['data'] as List)
+            .map((c) => Chat.fromJson(c, id: c['id']))
+            .toList();
+        yield chats;
+      }
+    }
+  }
+
+  subscribe() {
+    _emit('subscribe', {'collection': 'chats', 'ref': 'chats'});
+  }
+}
+
+class DoctorCollectionSocket extends CollectionSocket {
+  DoctorCollectionSocket(_upstream, _emit) : super(_upstream, _emit);
+
+  Future<List<AppUser>> withSpecialty(String specialty) async {
+    _emit('get', {
+      'collection': 'doctors',
+      'ref': 'doctors',
+      'specialty': specialty
+    });
+    final message = await _upstream.firstWhere((message) =>
+        message['event'] == 'get-success' &&
+        message['data']['ref'] == 'doctors');
+    return _toAppUserList(message['data']['content']);
+  }
+
+  _toAppUserList(list) {
+    return (list as List).map((a) => AppUser.fromJson(a, uid: a['uid'])).toList();
+  }
+}
+
+
+class UserCollectionSocket extends CollectionSocket {
+  late DoctorCollectionSocket doctors;
+
+  UserCollectionSocket(_upstream, _emit)
+      : doctors = DoctorCollectionSocket(_upstream, _emit),
+        super(_upstream, _emit);
 }

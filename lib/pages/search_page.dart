@@ -81,7 +81,10 @@ class _SearchPageState extends State<SearchPage> {
                                         'push', '/doctors');
                                   },
                                 ))
-                            .toList())
+                            .toList()),      
+                    const SizedBox(
+                      height: 80,
+                    )
                   ])),
             ],
           ),

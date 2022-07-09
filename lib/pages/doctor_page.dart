@@ -2,6 +2,7 @@ import 'package:ZeeU/models/app_user.dart';
 import 'package:ZeeU/models/chat.dart';
 import 'package:ZeeU/models/message.dart';
 import 'package:ZeeU/models/user_state.dart';
+import 'package:ZeeU/services/api_socket.dart';
 import 'package:ZeeU/utils/palette.dart';
 import 'package:ZeeU/utils/tab_item.dart';
 import 'package:ZeeU/widgets/chats/message_bar.dart';
@@ -71,8 +72,8 @@ class _DoctorPageState extends State<DoctorPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<UserState>(
-        builder: (context, user, child) => WillPopScope(
+    return Consumer2<UserState, ApiSocket>(
+        builder: (context, user, api, child) => WillPopScope(
             onWillPop: () async {
               widget.notifyRouteChange('pop', '/doctors');
               return true;
@@ -92,11 +93,8 @@ class _DoctorPageState extends State<DoctorPage> {
                           ),
                         ),
                         elevation: 0),
-                    body: FutureBuilder<QuerySnapshot<AppUser>>(
-                      future: userRef
-                          .where('user_type', isEqualTo: 'doctor')
-                          .where('specialty', isEqualTo: widget.specialty)
-                          .get(),
+                    body: FutureBuilder<List<AppUser>>(
+                      future: api.users.doctors.withSpecialty(widget.specialty),
                       builder: (context, snapshot) {
                         if (snapshot.hasError) {
                           return Center(
@@ -109,39 +107,30 @@ class _DoctorPageState extends State<DoctorPage> {
                               child: CircularProgressIndicator());
                         }
 
-                        final data = snapshot.requireData.docs;
-                        final doctors = data.map((e) {
-                          final doc = e.data();
-                          doc.uid = e.id;
-                          return doc;
-                        });
+                        final doctors = snapshot.requireData;
 
                         if (doctors.isEmpty) {
                           return const Center(child: Text('Empty'));
                         }
 
-                        return Column(
-                          children: [
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            Column(
-                                children: doctors
-                                    .map((e) => DoctorCard(
-                                          image: e.img!,
-                                          name: '${e.firstName} ${e.lastName}',
-                                          specialty: e.specialty!,
-                                          institute: e.institute!,
-                                          contact: e.contact!,
-                                          onTap: user.userType == 'patient'
-                                              ? (ctx) => createChat(
-                                                  ctx: ctx,
-                                                  doctorUid: e.uid!,
-                                                  patientUid: user.uid!)
-                                              : null,
-                                        ))
-                                    .toList()),
-                          ],
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20.0),
+                          child: Column(
+                                  children: doctors
+                                      .map((e) => DoctorCard(
+                                            image: e.img!,
+                                            name: '${e.firstName} ${e.lastName}',
+                                            specialty: e.specialty!,
+                                            institute: e.institute!,
+                                            contact: e.contact!,
+                                            onTap: user.userType == 'patient'
+                                                ? (ctx) => createChat(
+                                                    ctx: ctx,
+                                                    doctorUid: e.uid!,
+                                                    patientUid: user.uid!)
+                                                : null,
+                                          ))
+                                      .toList()),
                         );
                       },
                     )))));
