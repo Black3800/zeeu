@@ -84,12 +84,8 @@ class _HomePageState extends State<HomePage> {
                         height: 15,
                       ),
                       if (user.uid != null)
-                        StreamBuilder<QuerySnapshot<Appointment>>(
-                            stream: appointmentRef
-                                .where(user.userType!, isEqualTo: user.uid)
-                                .where('start', isGreaterThan: Timestamp.now())
-                                .orderBy('start')
-                                .snapshots(),
+                        StreamBuilder<List<Appointment>>(
+                            stream: api.appointments.stream,
                             builder: (context, snapshot) {
                               if (snapshot.hasError) {
                                 return Center(
@@ -102,11 +98,11 @@ class _HomePageState extends State<HomePage> {
                                     child: CircularProgressIndicator());
                               }
 
-                              final docs = snapshot.requireData.docs;
+                              final docs = snapshot.requireData;
                               final appointments = [];
                               var previousAppointmentDate = '';
                               for (var i = 0; i < docs.length; i++) {
-                                final a = docs[i].data();
+                                final a = docs[i];
                                 final date = _formatAppointmentDate(a.start);
                                 if (date != previousAppointmentDate) {
                                   appointments

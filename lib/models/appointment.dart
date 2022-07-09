@@ -6,19 +6,22 @@ class Appointment {
   AppUser patient;
   DateTime start;
   DateTime end;
+  String? id;
   
   Appointment({
     required this.doctor,
     required this.patient,
     required this.start,
-    required this.end
+    required this.end,
+    this.id
   });
 
   Appointment.fromJson(Map<dynamic, dynamic> json)
     : doctor = AppUser(uid: json['doctor']),
       patient = AppUser(uid: json['patient']),
-      start = (json['start'] as Timestamp).toDate(),
-      end = (json['end'] as Timestamp).toDate();
+      start = Timestamp(json['start']['_seconds'], json['start']['_nanoseconds']).toDate(),
+      end = Timestamp(json['end']['_seconds'], json['end']['_nanoseconds']).toDate(),
+      id = json['id'];
 
   Map<String, Object?> toJson() => <String, Object?>{
     'doctor': doctor.uid,

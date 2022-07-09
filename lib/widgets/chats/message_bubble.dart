@@ -1,4 +1,5 @@
 import 'package:ZeeU/models/appointment.dart';
+import 'package:ZeeU/services/api_socket.dart';
 import 'package:ZeeU/utils/palette.dart';
 import 'package:ZeeU/widgets/cloud_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -6,6 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class MessageBubble extends StatelessWidget {
   MessageBubble(
@@ -23,14 +25,16 @@ class MessageBubble extends StatelessWidget {
   final String align;
   final Function()? onFirstBuild;
 
-  final _bubbleBuilder = {
-    'text': (text) => Text(
-          text,
+  _bubbleBuilder(type, value) {
+    if (type == 'text') {
+      return Text(
+          value,
           style: GoogleFonts.roboto(
               color: Palette.jet, fontSize: 16, fontWeight: FontWeight.w400),
-        ),
-    'image': (path) => FutureBuilder<String>(
-        future: FirebaseStorage.instance.refFromURL(path).getDownloadURL(),
+        );
+    } else if (type == 'image') {
+      return FutureBuilder<String>(
+        future: FirebaseStorage.instance.refFromURL(value).getDownloadURL(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(
@@ -44,40 +48,38 @@ class MessageBubble extends StatelessWidget {
 
           final data = snapshot.data;
           return Image(image: NetworkImage(data!));
-        }),
-    'appointment': (id) => FutureBuilder<DocumentSnapshot<Appointment>>(
-        future: FirebaseFirestore.instance
-            .collection('appointments')
-            .withConverter<Appointment>(
-                fromFirestore: (snapshots, _) =>
-                    Appointment.fromJson(snapshots.data()!),
-                toFirestore: (appointment, _) => appointment.toJson())
-            .doc(id)
-            .get(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(snapshot.error.toString()),
-            );
-          }
+        });
+    } else if (type == 'appointment') {
+      return Consumer<ApiSocket>(
+        builder: (context, api, child) =>
+          FutureBuilder<Appointment>(
+            future: api.appointments.withId(value),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(snapshot.error.toString()),
+                );
+              }
 
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
+              if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-          final data = snapshot.requireData.data()!;
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 13),
-            child: Text(
-              "Appointment on ${DateFormat('yMMMd').add_Hm().format(data.start)}",
-              style: const TextStyle(
-                fontStyle: FontStyle.italic,
-                fontSize: 16,
-              ),
-            ),
-          );
-        })
-  };
+              final data = snapshot.requireData;
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 13),
+                child: Text(
+                  "Appointment on ${DateFormat('yMMMd').add_Hm().format(data.start)}",
+                  style: const TextStyle(
+                    fontStyle: FontStyle.italic,
+                    fontSize: 16,
+                  ),
+                ),
+              );
+            })
+      );
+    }
+  }
 
   bool didMounted = false;
 
@@ -127,7 +129,7 @@ class MessageBubble extends StatelessWidget {
                 ),
                 constraints: BoxConstraints(
                     maxWidth: MediaQuery.of(context).size.width * 0.5),
-                child: _bubbleBuilder[type]!(content)),
+                child: _bubbleBuilder(type, content)),
           )
         ]);
   }

@@ -1,6 +1,7 @@
 import 'package:ZeeU/models/app_user.dart';
 import 'package:ZeeU/models/appointment.dart';
 import 'package:ZeeU/models/user_state.dart';
+import 'package:ZeeU/services/api_socket.dart';
 import 'package:ZeeU/utils/palette.dart';
 import 'package:ZeeU/widgets/home/appointment_card.dart';
 import 'package:ZeeU/widgets/home/appointment_divider.dart';
@@ -23,8 +24,8 @@ class HistoryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<UserState>(
-        builder: (context, user, child) => WillPopScope(
+    return Consumer2<UserState, ApiSocket>(
+        builder: (context, user, api, child) => WillPopScope(
               onWillPop: () async {
                 notifyRouteChange('pop', '/history');
                 return true;
@@ -47,12 +48,8 @@ class HistoryPage extends StatelessWidget {
                   body: SingleChildScrollView(
                     child: Padding(
                         padding: const EdgeInsets.all(15),
-                        child: FutureBuilder<QuerySnapshot<Appointment>>(
-                            future: appointmentRef
-                                .where(user.userType!, isEqualTo: user.uid)
-                                .where('start', isLessThan: Timestamp.now())
-                                .orderBy('start')
-                                .get(),
+                        child: FutureBuilder<List<Appointment>>(
+                            future: api.appointments.once,
                             builder: (context, snapshot) {
                               if (snapshot.hasError) {
                                 return Center(
@@ -65,14 +62,12 @@ class HistoryPage extends StatelessWidget {
                                     child: CircularProgressIndicator());
                               }
 
-                              final docs =
-                                  snapshot.requireData.docs.reversed.toList();
+                              final docs = snapshot.requireData;
                               final appointments = [];
                               var previousAppointmentDate = '';
                               for (var i = 0; i < docs.length; i++) {
-                                final a = docs[i].data();
-                                final date =
-                                    DateFormat('yMMMMd').format(a.start);
+                                final a = docs[i];
+                                final date = DateFormat('yMMMMd').format(a.start);
                                 if (date != previousAppointmentDate) {
                                   appointments
                                       .add(AppointmentDivider(text: date));
@@ -122,7 +117,11 @@ class HistoryPage extends StatelessWidget {
                                                     name:
                                                         '${user.firstName} ${user.lastName}',
                                                     institute: user.institute ??
-                                                        'Patient');
+                                                        'Patient',
+                                                    startTime: DateFormat('Hm')
+                                                        .format(a.start),
+                                                    endTime: DateFormat('Hm')
+                                                        .format(a.end));
                                               }))
                                       .toList());
                             })),

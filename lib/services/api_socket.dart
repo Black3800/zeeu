@@ -1,14 +1,18 @@
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:ZeeU/models/appointment.dart';
 import 'package:ZeeU/models/chat.dart';
 import 'package:ZeeU/utils/constants.dart';
 import 'package:web_socket_channel/io.dart';
 
 class ApiSocket {
   final channel = IOWebSocketChannel.connect(Uri.parse(Constants.apiUri));
+  final Map<String,String> subscriptions = {};
   late String idToken;
   late Stream<Map> decoded;
   late ChatCollectionSocket chats;
+  late AppointmentCollectionSocket appointments;
 
   Stream<Map> get ping async* {
     await for (final ping in decoded) {
@@ -19,17 +23,26 @@ class ApiSocket {
   ApiSocket({ String? token }) {
     decoded = channel.stream.asBroadcastStream().map((message) => jsonDecode(message));
     chats = ChatCollectionSocket(decoded, emit);
+    appointments = AppointmentCollectionSocket(decoded, emit);
     if (token != null && token.isNotEmpty) {
       verifyToken(token);
-      decoded.listen((message) {
+      late StreamSubscription stopVerifySuccessSubscription;
+      stopVerifySuccessSubscription = decoded.listen((message) {
         if (message['event'] == 'verify-success') {
           chats.subscribe();
+          appointments.subscribe();
+        }
+      });
+      decoded.listen((message) {
+        if (message['event'] == 'subscribe-success') {
+          subscriptions[message['data']['ref']] = message['data']['sid'];
         }
       });
     }
   }
 
   verifyToken(String token) {
+    print('verifying $token');
     emit('verify', {'token': token});
     idToken = token;
   }
@@ -64,6 +77,50 @@ class ChatCollectionSocket {
   }
 
   subscribe() {
-    _emit('subscribe', {'collection': 'chats'});
+    _emit('subscribe', {'collection': 'chats', 'ref': 'chats'});
+  }
+}
+
+class AppointmentCollectionSocket {
+  final Stream<Map> _upstream;
+  final Function(String, Map<String, Object>) _emit;
+  List<Appointment>? _latest = null;
+
+  AppointmentCollectionSocket(this._upstream, this._emit);
+
+  Stream<List<Appointment>> get stream async* {
+    print('listening to apppointments');
+    await for (final message in _upstream) {
+      if (message['event'] == 'appointments') {
+        List<Appointment> appointments = _toAppointmentList(message['data']);
+        yield appointments;
+        _latest = appointments;
+      }
+    }
+  }
+
+  Future<List<Appointment>> get once async {
+    if (_latest != null) return Future.value(_latest);
+
+    _emit('get', {'collection': 'appointments', 'ref': 'appointments'});
+    final message = await _upstream.firstWhere((message) =>
+        message['event'] == 'get-success' &&
+        message['data']['ref'] == 'appointments');
+    return _toAppointmentList(message['data']['content']);
+  }
+
+  subscribe() {
+    _emit('subscribe', {'collection': 'appointments', 'ref': 'appointments'});
+  }
+
+  Future<Appointment> withId(id) async {
+    final list = await once;
+    return list.firstWhere((appointment) => appointment.id == id);
+  }
+
+  _toAppointmentList(list) {
+    return (list as List)
+            .map((a) => Appointment.fromJson(a))
+            .toList();
   }
 }

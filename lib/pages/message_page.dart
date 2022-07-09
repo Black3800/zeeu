@@ -2,6 +2,7 @@ import 'package:ZeeU/models/app_user.dart';
 import 'package:ZeeU/models/chat.dart';
 import 'package:ZeeU/models/message.dart';
 import 'package:ZeeU/models/user_state.dart';
+import 'package:ZeeU/services/api_socket.dart';
 import 'package:ZeeU/utils/palette.dart';
 import 'package:ZeeU/widgets/chats/message_bar.dart';
 import 'package:ZeeU/widgets/chats/message_bubble.dart';
@@ -174,8 +175,8 @@ class _MessagePageState extends State<MessagePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<UserState>(
-        builder: (context, user, child) => WillPopScope(
+    return Consumer2<UserState, ApiSocket>(
+        builder: (context, user, api, child) => WillPopScope(
               onWillPop: () async {
                 widget.notifyRouteChange('pop', '/messages');
                 return true;
