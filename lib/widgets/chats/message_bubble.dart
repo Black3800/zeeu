@@ -86,7 +86,7 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!didMounted) {
-      onFirstBuild?.call();
+      WidgetsBinding.instance?.addPostFrameCallback((_) => onFirstBuild?.call());
       didMounted = true;
     }
     return Row(

@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import 'search_page.dart';
 
@@ -41,6 +42,8 @@ class _MessagePageState extends State<MessagePage> {
               AppUser.fromJson(snapshots.data()!, uid: snapshots.reference.id),
           toFirestore: (user, _) => user.toJson());
   final controller = TextEditingController();
+  final itemScrollController = ItemScrollController();
+  final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
   late CollectionReference<Message> messageRef;
   late UserDocumentSocket interlocutor;
 
@@ -161,6 +164,13 @@ class _MessagePageState extends State<MessagePage> {
         .update({'latest_message_seen_$userType': true});
   }
 
+  void _scrollDown(index) {
+    itemScrollController.scrollTo(
+      index: index,
+      duration: const Duration(milliseconds: 666),
+      curve: Curves.easeInOutCubic);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -184,6 +194,7 @@ class _MessagePageState extends State<MessagePage> {
   @override
   void dispose() {
     interlocutor.unsubsribe();
+    controller.dispose();
     super.dispose();
   }
 
@@ -329,7 +340,9 @@ class _MessagePageState extends State<MessagePage> {
                               return const Center(child: Text('Empty'));
                             }
 
-                            return ListView.builder(
+                            return ScrollablePositionedList.builder(
+                              itemScrollController: itemScrollController,
+                              itemPositionsListener: itemPositionsListener,
                               itemBuilder: (context, index) => MessageBubble(
                                   content: messages[index].content,
                                   type: messages[index].type,
@@ -343,7 +356,10 @@ class _MessagePageState extends State<MessagePage> {
                                           ? 'right'
                                           : 'left',
                                   onFirstBuild: index + 1 == messages.length
-                                      ? () => _seenLatestMessage(user.userType!)
+                                      ? () {
+                                          _seenLatestMessage(user.userType!);
+                                          _scrollDown(index);
+                                        }
                                       : null),
                               itemCount: messages.length,
                             );
