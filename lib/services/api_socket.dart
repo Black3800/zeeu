@@ -52,7 +52,11 @@ class ApiSocket {
     return true;
   }
 
-  emit(String type, Map<String, Object> params) {
+  logout() {
+    emit('logout', null);
+  }
+
+  emit(String type, Map<String, Object>? params) {
     channel.sink.add(jsonEncode({
       'type': type,
       'params': params

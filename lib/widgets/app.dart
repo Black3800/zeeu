@@ -8,6 +8,7 @@ import 'package:ZeeU/pages/message_page.dart';
 import 'package:ZeeU/pages/profile_page.dart';
 import 'package:ZeeU/pages/search_page.dart';
 import 'package:ZeeU/pages/settings_page.dart';
+import 'package:ZeeU/services/api_socket.dart';
 import 'package:ZeeU/widgets/bottom_navigation.dart';
 import 'package:ZeeU/utils/tab_item.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -135,6 +136,7 @@ class AppState extends State<App> {
           final routeName = routeSettings.name!;
           if (routeName == '/logout') {
             FirebaseAuth.instance.signOut();
+            Provider.of<ApiSocket>(context, listen: false).logout();
             widget.appNavigatorKey.currentState?.pushReplacementNamed('/login');
             return MaterialPageRoute(builder: (_) => const SizedBox());
           } else if (routeName == '/messages') {
