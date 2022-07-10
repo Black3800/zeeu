@@ -1,13 +1,7 @@
-// import 'dart:html';
-
 import 'package:ZeeU/models/user_state.dart';
 import 'package:ZeeU/utils/palette.dart';
 import 'package:ZeeU/widgets/cloud_image.dart';
-import 'package:ZeeU/widgets/cta_button.dart';
-import 'package:ZeeU/widgets/gradient_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';

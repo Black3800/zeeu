@@ -1,10 +1,8 @@
-import 'package:ZeeU/models/app_user.dart';
 import 'package:ZeeU/models/user_state.dart';
 import 'package:ZeeU/services/api_socket.dart';
 import 'package:ZeeU/utils/palette.dart';
 import 'package:ZeeU/widgets/gradient_button.dart';
 import 'package:ZeeU/widgets/zeeu_snackbar.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -35,21 +33,26 @@ class _LoginPageState extends State<LoginPage> {
       final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: _emailController.text, password: _passwordController.text);
 
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc('${credential.user?.uid}')
-          .get();
+      final token = await credential.user?.getIdToken();
+      final api = Provider.of<ApiSocket>(context, listen: false);
+      final verifySuccess = await api.verifyToken(token!);
 
-      final user = AppUser.fromJson(doc.data() ?? {});
+      if (!verifySuccess) {
+        throw Exception('Token verification failed');
+      }
+
+      final user = await api.users.withUid(credential.user?.uid);
       user.uid = credential.user?.uid;
       user.email = credential.user?.email;
-
-      final token = await credential.user?.getIdToken();
-      Provider.of<ApiSocket>(context, listen: false).verifyToken(token!);
 
       snackBar.text = "Welcome, ${user.firstName}";
       snackBar.icon = Icons.check_circle;
       snackBar.accentColor = Palette.success;
+
+      FirebaseAuth.instance.idTokenChanges().listen((user) async {
+        final token = await user?.getIdToken();
+        api.verifyToken(token!);
+      });
 
       Provider.of<UserState>(context, listen: false).updateUser(user);
       Navigator.of(context).pushReplacementNamed('/app');

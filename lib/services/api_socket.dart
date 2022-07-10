@@ -5,6 +5,7 @@ import 'package:ZeeU/models/app_user.dart';
 import 'package:ZeeU/models/appointment.dart';
 import 'package:ZeeU/models/chat.dart';
 import 'package:ZeeU/utils/constants.dart';
+import 'package:uuid/uuid.dart';
 import 'package:web_socket_channel/io.dart';
 
 class ApiSocket {
@@ -29,25 +30,26 @@ class ApiSocket {
     users = UserCollectionSocket(decoded, emit);
     if (token != null && token.isNotEmpty) {
       verifyToken(token);
-      late StreamSubscription stopVerifySuccessSubscription;
-      stopVerifySuccessSubscription = decoded.listen((message) {
-        if (message['event'] == 'verify-success') {
-          chats.subscribe();
-          appointments.subscribe();
-        }
-      });
-      decoded.listen((message) {
-        if (message['event'] == 'subscribe-success') {
-          subscriptions[message['data']['ref']] = message['data']['sid'];
-        }
-      });
     }
   }
 
-  verifyToken(String token) {
+  Future<bool> verifyToken(String token) async {
     print('verifying $token');
     emit('verify', {'token': token});
     idToken = token;
+    await for (final message in decoded) {
+      if (message['event'] == 'verify-success') {
+        chats.subscribe();
+        appointments.subscribe();
+        break;
+      }
+    }
+    decoded.listen((message) {
+      if (message['event'] == 'subscribe-success') {
+        subscriptions[message['data']['ref']] = message['data']['sid'];
+      }
+    });
+    return true;
   }
 
   emit(String type, Map<String, Object> params) {
@@ -157,4 +159,17 @@ class UserCollectionSocket extends CollectionSocket {
   UserCollectionSocket(_upstream, _emit)
       : doctors = DoctorCollectionSocket(_upstream, _emit),
         super(_upstream, _emit);
+
+  Future<AppUser> withUid(uid) async {
+    final ref = const Uuid().v4();
+    _emit('get', {
+      'collection': 'user',
+      'ref': ref,
+      'uid': uid
+    });
+    final message = await _upstream.firstWhere((message) =>
+        message['event'] == 'get-success' &&
+        message['data']['ref'] == ref);
+    return AppUser.fromJson(message['data']['content']);
+  }
 }
