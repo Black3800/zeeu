@@ -132,6 +132,48 @@ class ChatCollectionSocket extends CollectionSocket {
   }
 }
 
+class UserDocumentSocket extends CollectionSocket {
+  final String _uid;
+  String? _sid;
+
+  UserDocumentSocket(uid, _upstream, _emit) : _uid = uid, super(_upstream, _emit);
+
+  Stream<AppUser> get stream async* {
+    await for (final message in _upstream) {
+      if (message['event'] == 'user' && message['data']['uid'] == _uid) {
+        yield AppUser.fromJson(message['data'], uid: message['data']['uid']);
+      }
+    }
+  }
+  
+  Future<AppUser> get once async {
+    final ref = const Uuid().v4();
+    _emit('get', {'collection': 'user', 'ref': ref, 'uid': _uid});
+    final message = await _upstream.firstWhere((message) =>
+        message['event'] == 'get-success' && message['data']['ref'] == ref);
+    return AppUser.fromJson(message['data']['content']);
+  }
+
+  subscribe() {
+    if (_sid == null) {
+      _emit('subscribe', {'collection': 'user', 'ref': 'user $_uid', 'uid': _uid});
+      late StreamSubscription setSidSubscription;
+      setSidSubscription = _upstream.listen((message) {
+        if (message['event'] == 'subscribe-success' && message['data']['ref'] == 'user $_uid') {
+          _sid = message['data']['sid'];
+          setSidSubscription.cancel();
+        }
+      });
+    }
+  }
+
+  unsubsribe() {
+    if (_sid != null) {
+      _emit('unsubscribe', {'sid': _sid!});
+    }
+  }
+}
+
 class DoctorCollectionSocket extends CollectionSocket {
   DoctorCollectionSocket(_upstream, _emit) : super(_upstream, _emit);
 
@@ -152,7 +194,6 @@ class DoctorCollectionSocket extends CollectionSocket {
   }
 }
 
-
 class UserCollectionSocket extends CollectionSocket {
   late DoctorCollectionSocket doctors;
 
@@ -160,16 +201,7 @@ class UserCollectionSocket extends CollectionSocket {
       : doctors = DoctorCollectionSocket(_upstream, _emit),
         super(_upstream, _emit);
 
-  Future<AppUser> withUid(uid) async {
-    final ref = const Uuid().v4();
-    _emit('get', {
-      'collection': 'user',
-      'ref': ref,
-      'uid': uid
-    });
-    final message = await _upstream.firstWhere((message) =>
-        message['event'] == 'get-success' &&
-        message['data']['ref'] == ref);
-    return AppUser.fromJson(message['data']['content']);
+  UserDocumentSocket withUid(uid) {
+    return UserDocumentSocket(uid, _upstream, _emit);
   }
 }

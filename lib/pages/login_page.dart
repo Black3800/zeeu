@@ -41,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
         throw Exception('Token verification failed');
       }
 
-      final user = await api.users.withUid(credential.user?.uid);
+      final user = await api.users.withUid(credential.user?.uid).once;
       user.uid = credential.user?.uid;
       user.email = credential.user?.email;
 

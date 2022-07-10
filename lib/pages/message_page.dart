@@ -42,6 +42,7 @@ class _MessagePageState extends State<MessagePage> {
           toFirestore: (user, _) => user.toJson());
   final controller = TextEditingController();
   late CollectionReference<Message> messageRef;
+  late UserDocumentSocket interlocutor;
 
   Future<void> _showInfo(AppUser doctor) async {
     await showDialog(
@@ -171,6 +172,19 @@ class _MessagePageState extends State<MessagePage> {
             fromFirestore: (snapshots, _) =>
                 Message.fromJson(snapshots.data()!),
             toFirestore: (msg, _) => msg.toJson());
+    interlocutor = Provider.of<ApiSocket>(context, listen: false)
+                      .users.withUid(
+                        Provider.of<UserState>(context, listen: false)
+                            .userType == 'patient'
+                                ? widget.chat.doctor.uid
+                                : widget.chat.patient.uid);
+    interlocutor.subscribe();
+  }
+
+  @override
+  void dispose() {
+    interlocutor.unsubsribe();
+    super.dispose();
   }
 
   @override
@@ -190,12 +204,8 @@ class _MessagePageState extends State<MessagePage> {
                         elevation: 0),
                     body: Column(
                       children: [
-                        StreamBuilder<DocumentSnapshot<AppUser>>(
-                          stream: userRef
-                              .doc(user.userType == 'patient'
-                                  ? widget.chat.doctor.uid
-                                  : widget.chat.patient.uid)
-                              .snapshots(),
+                        StreamBuilder<AppUser>(
+                          stream: interlocutor.stream,
                           builder: (context, snapshot) {
                             if (snapshot.hasError) {
                               return Center(
@@ -208,7 +218,7 @@ class _MessagePageState extends State<MessagePage> {
                                   child: CircularProgressIndicator());
                             }
 
-                            final data = snapshot.requireData.data()!;
+                            final data = snapshot.requireData;
 
                             return Stack(
                               children: [
@@ -256,11 +266,11 @@ class _MessagePageState extends State<MessagePage> {
                                             width: 20,
                                           ),
                                           Expanded(
-                                            child: Row(
+                                            child: Column(
                                               mainAxisAlignment:
-                                                  MainAxisAlignment.start,
+                                                  MainAxisAlignment.center,
                                               crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 Text(
                                                   '${data.firstName} ${data.lastName}',
@@ -272,6 +282,8 @@ class _MessagePageState extends State<MessagePage> {
                                                   overflow:
                                                       TextOverflow.ellipsis,
                                                 ),
+                                                const SizedBox(height: 10),
+                                                status(data.active ?? false)
                                               ],
                                             ),
                                           ),
@@ -361,36 +373,28 @@ class _MessagePageState extends State<MessagePage> {
             ));
   }
 
-  Widget disc(bool active) => Container(
+  Widget disc(bool isGreen) => Container(
         width: 13,
         height: 13,
         decoration: BoxDecoration(
-            boxShadow: const [
-              BoxShadow(
-                  color: Color.fromRGBO(53, 53, 53, 0.25),
-                  offset: Offset(1, 2),
-                  blurRadius: 10)
-            ],
+            boxShadow: isGreen
+                ? const [
+                    BoxShadow(
+                        color: Palette.aquamarine,
+                        offset: Offset(1, 2),
+                        blurRadius: 10)
+                  ]
+                : [],
             shape: BoxShape.circle,
-            color: active ? Palette.aquamarine : Palette.gray),
+            color: isGreen ? Palette.aquamarine : Palette.gray),
       );
+
+  Widget status(bool active) => Row(
+                                  children: [
+                                    disc(active),
+                                    const SizedBox(width: 10),
+                                    Text(active ? 'Online' : 'Offline',
+                                        style: const TextStyle(color: Palette.gray, fontSize: 14))
+                                  ]
+                                );
 }
-  // Row(
-    //   children: [
-    //     disc(data.active!),
-    //     const SizedBox(
-    //       width: 7,
-    //     ),
-    //     Text(
-    //       data.active!
-    //           ? 'Active now'
-    //           : 'Offline',
-    //       style: GoogleFonts.roboto(
-    //           color: Palette
-    //               .gray.shade400,
-    //           fontSize: 14,
-    //           fontWeight:
-    //               FontWeight.w400),
-    //     )
-    //   ],
-    // ),
