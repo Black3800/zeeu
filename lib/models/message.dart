@@ -17,7 +17,7 @@ class Message {
     : content = json['content'],
       type = json['type'],
       isFromDoctor = json['from_doctor'],
-      time = (json['time'] as Timestamp).toDate();
+      time = Timestamp(json['time']['_seconds'], json['time']['_nanoseconds']).toDate();
 
   Map<String, Object?> toJson() => <String, Object?>{
     'content': content,

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ZeeU/models/app_user.dart';
 import 'package:ZeeU/models/chat.dart';
 import 'package:ZeeU/models/message.dart';
@@ -46,6 +48,7 @@ class _MessagePageState extends State<MessagePage> {
   final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
   late CollectionReference<Message> messageRef;
   late UserDocumentSocket interlocutor;
+  late MessageCollectionSocket messageCollection;
 
   Future<void> _showInfo(AppUser doctor) async {
     await showDialog(
@@ -165,10 +168,12 @@ class _MessagePageState extends State<MessagePage> {
   }
 
   void _scrollDown(index) {
-    itemScrollController.scrollTo(
-      index: index,
-      duration: const Duration(milliseconds: 666),
-      curve: Curves.easeInOutCubic);
+    Timer(const Duration(milliseconds: 333), () {
+      itemScrollController.scrollTo(
+        index: index,
+        duration: const Duration(milliseconds: 666),
+        curve: Curves.easeInOutCubic);
+    });
   }
 
   @override
@@ -189,11 +194,14 @@ class _MessagePageState extends State<MessagePage> {
                                 ? widget.chat.doctor.uid
                                 : widget.chat.patient.uid);
     interlocutor.subscribe();
+    messageCollection = Provider.of<ApiSocket>(context, listen: false).chats.withId(widget.chat.id);
+    messageCollection.subscribe();
   }
 
   @override
   void dispose() {
     interlocutor.unsubsribe();
+    messageCollection.unsubsribe();
     controller.dispose();
     super.dispose();
   }
@@ -215,156 +223,157 @@ class _MessagePageState extends State<MessagePage> {
                         elevation: 0),
                     body: Column(
                       children: [
-                        StreamBuilder<AppUser>(
-                          stream: interlocutor.stream,
-                          builder: (context, snapshot) {
-                            if (snapshot.hasError) {
-                              return Center(
-                                child: Text(snapshot.error.toString()),
-                              );
-                            }
+                        Stack(
+                          children: [
+                            ClipPath(
+                              clipper: GreenClipper(),
+                              child: Container(
+                                color: Palette.honeydew,
+                                height: 115,
+                              ),
+                            ),
+                            ClipPath(
+                              clipper: WhiteClipper(),
+                              child: Container(
+                                color: Palette.white,
+                                height: 110,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      top: 0,
+                                      right: 20,
+                                      left: 20,
+                                      bottom: 30),
+                                  child: StreamBuilder<AppUser>(
+                                    stream: interlocutor.stream,
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasError) {
+                                        return Center(
+                                          child: Text(snapshot.error.toString()),
+                                        );
+                                      }
 
-                            if (!snapshot.hasData) {
-                              return const Center(
-                                  child: CircularProgressIndicator());
-                            }
+                                      if (!snapshot.hasData) {
+                                        return Center(
+                                            child: CircularProgressIndicator(
+                                              color: Palette.gray.withOpacity(.2)
+                                            ));
+                                      }
 
-                            final data = snapshot.requireData;
-
-                            return Stack(
-                              children: [
-                                ClipPath(
-                                  clipper: GreenClipper(),
-                                  child: Container(
-                                    color: Palette.honeydew,
-                                    height: 115,
-                                  ),
+                                      final data = snapshot.requireData;
+                                      return  Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Container(
+                                                    decoration: const BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                            color: Color.fromRGBO(
+                                                                53, 53, 53, 0.25),
+                                                            offset: Offset(1, 2),
+                                                            blurRadius: 10)
+                                                      ],
+                                                    ),
+                                                    child: CloudImage(
+                                                        radius: 65,
+                                                        image: data.img!,
+                                                        readOnly: true,
+                                                        showLoadingStatus: false),
+                                                  ),
+                                                  const SizedBox(
+                                                    width: 20,
+                                                  ),
+                                                  Expanded(
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment.center,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment.start,
+                                                      children: [
+                                                        Text(
+                                                          '${data.firstName} ${data.lastName}',
+                                                          style: GoogleFonts.roboto(
+                                                              color: Palette.jet,
+                                                              fontSize: 18,
+                                                              fontWeight:
+                                                                  FontWeight.w700),
+                                                          overflow:
+                                                              TextOverflow.ellipsis,
+                                                        ),
+                                                        const SizedBox(height: 10),
+                                                        status(data.active ?? false)
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  if (user.userType == 'patient') IconButton(
+                                                    onPressed: () => _showInfo(data),
+                                                    icon: const Icon(
+                                                        Icons.more_vert_outlined,
+                                                        size: 24),
+                                                    iconSize: 24,
+                                                    color: Palette.gray.shade300,
+                                                  )
+                                                ],
+                                              );
+                                    },
+                                  )
                                 ),
-                                ClipPath(
-                                  clipper: WhiteClipper(),
-                                  child: Container(
-                                    color: Palette.white,
-                                    height: 110,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                          top: 0,
-                                          right: 20,
-                                          left: 20,
-                                          bottom: 30),
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Container(
-                                            decoration: const BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              boxShadow: [
-                                                BoxShadow(
-                                                    color: Color.fromRGBO(
-                                                        53, 53, 53, 0.25),
-                                                    offset: Offset(1, 2),
-                                                    blurRadius: 10)
-                                              ],
-                                            ),
-                                            child: CloudImage(
-                                                radius: 65,
-                                                image: data.img!,
-                                                readOnly: true),
-                                          ),
-                                          const SizedBox(
-                                            width: 20,
-                                          ),
-                                          Expanded(
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  '${data.firstName} ${data.lastName}',
-                                                  style: GoogleFonts.roboto(
-                                                      color: Palette.jet,
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.w700),
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                                const SizedBox(height: 10),
-                                                status(data.active ?? false)
-                                              ],
-                                            ),
-                                          ),
-                                          if (user.userType == 'patient') IconButton(
-                                            onPressed: () => _showInfo(data),
-                                            icon: const Icon(
-                                                Icons.more_vert_outlined,
-                                                size: 24),
-                                            iconSize: 24,
-                                            color: Palette.gray.shade300,
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
+                              ),
+                            ),
+                          ],
                         ),
                         Expanded(
-                            child: StreamBuilder<QuerySnapshot<Message>>(
-                          stream: messageRef.orderBy('time').snapshots(),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasError) {
-                              return Center(
-                                child: Text(snapshot.error.toString()),
+                            child: StreamBuilder<List<Message>>(
+                              stream: messageCollection.stream,
+                              builder: (context, snapshot) {
+                                if (snapshot.hasError) {
+                                  return Center(
+                                    child: Text(snapshot.error.toString()),
+                                  );
+                                }
+
+                              if (!snapshot.hasData) {
+                                return const Center(
+                                    child: CircularProgressIndicator(
+                                      color: Palette.aquamarine
+                                    ));
+                              }
+
+                              final messages = snapshot.requireData;
+
+                              if (messages.isEmpty) {
+                                return const Center(child: Text('Empty'));
+                              }
+
+                              return ScrollablePositionedList.builder(
+                                itemScrollController: itemScrollController,
+                                itemPositionsListener: itemPositionsListener,
+                                itemBuilder: (context, index) => MessageBubble(
+                                    content: messages[index].content,
+                                    type: messages[index].type,
+                                    time: DateFormat('Hm')
+                                        .format(messages[index].time),
+                                    align: messages[index].isFromDoctor
+                                        ? user.userType == 'doctor'
+                                            ? 'right'
+                                            : 'left'
+                                        : user.userType == 'patient'
+                                            ? 'right'
+                                            : 'left',
+                                    onFirstBuild: index + 1 == messages.length
+                                        ? () {
+                                            _seenLatestMessage(user.userType!);
+                                            _scrollDown(index);
+                                          }
+                                        : null),
+                                itemCount: messages.length,
                               );
-                            }
-
-                            if (!snapshot.hasData) {
-                              return const Center(
-                                  child: CircularProgressIndicator());
-                            }
-
-                            final data = snapshot.requireData.docs;
-                            final messages = [];
-                            for (final m in data) {
-                              messages.add(m.data());
-                            }
-
-                            if (messages.isEmpty) {
-                              return const Center(child: Text('Empty'));
-                            }
-
-                            return ScrollablePositionedList.builder(
-                              itemScrollController: itemScrollController,
-                              itemPositionsListener: itemPositionsListener,
-                              itemBuilder: (context, index) => MessageBubble(
-                                  content: messages[index].content,
-                                  type: messages[index].type,
-                                  time: DateFormat('Hm')
-                                      .format(messages[index].time),
-                                  align: messages[index].isFromDoctor
-                                      ? user.userType == 'doctor'
-                                          ? 'right'
-                                          : 'left'
-                                      : user.userType == 'patient'
-                                          ? 'right'
-                                          : 'left',
-                                  onFirstBuild: index + 1 == messages.length
-                                      ? () {
-                                          _seenLatestMessage(user.userType!);
-                                          _scrollDown(index);
-                                        }
-                                      : null),
-                              itemCount: messages.length,
-                            );
-                          },
-                        )),
+                            },
+                          )
+                        ),
                         MessageBar(
                           textController: controller,
                           onSubmitText: () async {

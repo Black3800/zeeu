@@ -9,7 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-class MessageBubble extends StatelessWidget {
+class MessageBubble extends StatefulWidget {
   MessageBubble(
       {Key? key,
       required this.content,
@@ -25,6 +25,11 @@ class MessageBubble extends StatelessWidget {
   final String align;
   final Function()? onFirstBuild;
 
+  @override
+  State<MessageBubble> createState() => _MessageBubbleState();
+}
+
+class _MessageBubbleState extends State<MessageBubble> {
   _bubbleBuilder(type, value) {
     if (type == 'text') {
       return Text(
@@ -68,12 +73,17 @@ class MessageBubble extends StatelessWidget {
               final data = snapshot.requireData;
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 13),
-                child: Text(
-                  "Appointment on ${DateFormat('yMMMd').add_Hm().format(data.start)}",
-                  style: const TextStyle(
-                    fontStyle: FontStyle.italic,
-                    fontSize: 16,
-                  ),
+                child: Column(
+                  children: [
+                    const Icon(Icons.calendar_month_rounded, color: Palette.ultramarine),
+                    Text(
+                      "Appointment on ${DateFormat('yMMMd').add_Hm().format(data.start)}",
+                      style: const TextStyle(
+                        fontStyle: FontStyle.italic,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
                 ),
               );
             })
@@ -86,24 +96,24 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!didMounted) {
-      WidgetsBinding.instance?.addPostFrameCallback((_) => onFirstBuild?.call());
+      WidgetsBinding.instance?.addPostFrameCallback((_) => widget.onFirstBuild?.call());
       didMounted = true;
     }
     return Row(
         mainAxisAlignment:
-            align == 'left' ? MainAxisAlignment.start : MainAxisAlignment.end,
+            widget.align == 'left' ? MainAxisAlignment.start : MainAxisAlignment.end,
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
             child: Container(
-                padding: type == 'text'
+                padding: widget.type == 'text'
                     ? const EdgeInsets.symmetric(vertical: 8, horizontal: 13)
                     : null,
                 decoration: BoxDecoration(
-                  color: align == 'left'
+                  color: widget.align == 'left'
                       ? Palette.white.withOpacity(0.5)
                       : Palette.aquamarine,
-                  borderRadius: align == 'left'
+                  borderRadius: widget.align == 'left'
                       ? const BorderRadius.only(
                           topLeft: Radius.circular(0),
                           topRight: Radius.circular(20),
@@ -118,10 +128,10 @@ class MessageBubble extends StatelessWidget {
                         ),
                   boxShadow: [
                     BoxShadow(
-                        color: align != 'left' && type != 'image'
+                        color: widget.align != 'left' && widget.type != 'image'
                             ? const Color.fromRGBO(130, 245, 195, 0.3)
                             : const Color.fromRGBO(53, 53, 53, 0.05),
-                        offset: align == 'left'
+                        offset: widget.align == 'left'
                             ? const Offset(2, 3)
                             : const Offset(-2, 3),
                         blurRadius: 5)
@@ -129,7 +139,7 @@ class MessageBubble extends StatelessWidget {
                 ),
                 constraints: BoxConstraints(
                     maxWidth: MediaQuery.of(context).size.width * 0.5),
-                child: _bubbleBuilder(type, content)),
+                child: _bubbleBuilder(widget.type, widget.content)),
           )
         ]);
   }

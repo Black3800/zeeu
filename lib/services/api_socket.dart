@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:ZeeU/models/app_user.dart';
 import 'package:ZeeU/models/appointment.dart';
 import 'package:ZeeU/models/chat.dart';
+import 'package:ZeeU/models/message.dart';
 import 'package:ZeeU/utils/constants.dart';
 import 'package:uuid/uuid.dart';
 import 'package:web_socket_channel/io.dart';
@@ -131,8 +132,54 @@ class ChatCollectionSocket extends CollectionSocket {
     }
   }
 
+  MessageCollectionSocket withId(id) {
+    return MessageCollectionSocket(id, _upstream, _emit);
+  }
+
   subscribe() {
     _emit('subscribe', {'collection': 'chats', 'ref': 'chats'});
+  }
+}
+
+class MessageCollectionSocket extends CollectionSocket {
+  final String _id;
+  String? _sid;
+
+  MessageCollectionSocket(id, _upstream, _emit) : _id = id, super(_upstream, _emit);
+
+  Stream<List<Message>> get stream async* {
+    await for (final message in _upstream) {
+      if (message['event'] == 'messages' && message['data']['id'] == _id) {
+        List<Message> messages = _toMessageList(message['data']['content']);
+        yield messages;
+      }
+    }
+  }
+
+  subscribe() {
+    if (_sid == null) {
+      _emit('subscribe', {'collection': 'messages', 'ref': 'messages $_id', 'id': _id});
+      late StreamSubscription setSidSubscription;
+      setSidSubscription = _upstream.listen((message) {
+        if (message['event'] == 'subscribe-success' &&
+            message['data']['ref'] == 'messages $_id') {
+          _sid = message['data']['sid'];
+          setSidSubscription.cancel();
+        }
+      });
+    }
+  }
+
+  unsubsribe() {
+    if (_sid != null) {
+      _emit('unsubscribe', {'sid': _sid!});
+    }
+  }
+
+  _toMessageList(list) {
+    return (list as List)
+            .map((a) => Message.fromJson(a))
+            .toList();
   }
 }
 
