@@ -5,22 +5,15 @@ import 'package:ZeeU/services/api_socket.dart';
 import 'package:ZeeU/utils/palette.dart';
 import 'package:ZeeU/widgets/home/appointment_card.dart';
 import 'package:ZeeU/widgets/home/appointment_divider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class HistoryPage extends StatelessWidget {
-  HistoryPage({Key? key, required this.notifyRouteChange}) : super(key: key);
+  const HistoryPage({Key? key, required this.notifyRouteChange}) : super(key: key);
 
   final Function(String, String) notifyRouteChange;
-  final appointmentRef = FirebaseFirestore.instance
-      .collection('appointments')
-      .withConverter<Appointment>(
-          fromFirestore: (snapshots, _) =>
-              Appointment.fromJson(snapshots.data()!),
-          toFirestore: (appointment, _) => appointment.toJson());
 
   @override
   Widget build(BuildContext context) {
@@ -86,14 +79,13 @@ class HistoryPage extends StatelessWidget {
                                       .map<Widget>((a) => a
                                               is AppointmentDivider
                                           ? a
-                                          : FutureBuilder<DocumentSnapshot>(
-                                              future: FirebaseFirestore.instance
-                                                  .collection('users')
-                                                  .doc(
+                                          : FutureBuilder<AppUser>(
+                                              future: api.users
+                                                  .withUid(
                                                       user.userType == 'patient'
                                                           ? a.doctor.uid
                                                           : a.patient.uid)
-                                                  .get(),
+                                                  .once,
                                               builder: (context, snapshot) {
                                                 if (snapshot.hasError) {
                                                   return Center(
@@ -108,11 +100,7 @@ class HistoryPage extends StatelessWidget {
                                                           CircularProgressIndicator());
                                                 }
 
-                                                final data =
-                                                    snapshot.requireData.data()
-                                                        as Map;
-                                                final user =
-                                                    AppUser.fromJson(data);
+                                                final user = snapshot.requireData;
                                                 return AppointmentCard(
                                                     image: user.img!,
                                                     name:

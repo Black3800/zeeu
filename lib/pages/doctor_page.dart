@@ -1,18 +1,11 @@
 import 'package:ZeeU/models/app_user.dart';
-import 'package:ZeeU/models/chat.dart';
-import 'package:ZeeU/models/message.dart';
 import 'package:ZeeU/models/user_state.dart';
 import 'package:ZeeU/services/api_socket.dart';
 import 'package:ZeeU/utils/palette.dart';
 import 'package:ZeeU/utils/tab_item.dart';
-import 'package:ZeeU/widgets/chats/message_bar.dart';
-import 'package:ZeeU/widgets/chats/message_bubble.dart';
-import 'package:ZeeU/widgets/cloud_image.dart';
 import 'package:ZeeU/widgets/search/doctor_card.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class DoctorPage extends StatefulWidget {
@@ -32,11 +25,6 @@ class DoctorPage extends StatefulWidget {
 }
 
 class _DoctorPageState extends State<DoctorPage> {
-  final userRef = FirebaseFirestore.instance
-      .collection('users')
-      .withConverter<AppUser>(
-          fromFirestore: (snapshots, _) => AppUser.fromJson(snapshots.data()!),
-          toFirestore: (usr, _) => usr.toJson());
 
   Future<void> createChat({required BuildContext ctx, required String doctorUid}) async {
     final confirm = await showDialog<bool>(

@@ -9,7 +9,6 @@ import 'package:ZeeU/utils/tab_item.dart';
 import 'package:ZeeU/widgets/home/appointment_card.dart';
 import 'package:ZeeU/widgets/home/appointment_divider.dart';
 import 'package:ZeeU/widgets/home/hero_card.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -31,12 +30,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final appointmentRef = FirebaseFirestore.instance
-      .collection('appointments')
-      .withConverter<Appointment>(
-          fromFirestore: (snapshots, _) =>
-              Appointment.fromJson(snapshots.data()!),
-          toFirestore: (appointment, _) => appointment.toJson());
 
   @override
   void initState() {
@@ -134,14 +127,13 @@ class _HomePageState extends State<HomePage> {
                                       .map<Widget>((a) => a
                                               is AppointmentDivider
                                           ? a
-                                          : FutureBuilder<DocumentSnapshot>(
-                                              future: FirebaseFirestore.instance
-                                                  .collection('users')
-                                                  .doc(
-                                                      user.userType == 'patient'
-                                                          ? a.doctor.uid
-                                                          : a.patient.uid)
-                                                  .get(),
+                                          : FutureBuilder<AppUser>(
+                                              future: api.users
+                                                .withUid(
+                                                    user.userType == 'patient'
+                                                        ? a.doctor.uid
+                                                        : a.patient.uid)
+                                                .once,
                                               builder: (context, snapshot) {
                                                 if (snapshot.hasError) {
                                                   return Center(
@@ -156,11 +148,7 @@ class _HomePageState extends State<HomePage> {
                                                           CircularProgressIndicator());
                                                 }
 
-                                                final data =
-                                                    snapshot.requireData.data()
-                                                        as Map;
-                                                final user =
-                                                    AppUser.fromJson(data);
+                                                final user = snapshot.requireData;
                                                 return AppointmentCard(
                                                     image: user.img!,
                                                     name:

@@ -5,7 +5,6 @@ import 'package:ZeeU/services/api_socket.dart';
 import 'package:ZeeU/utils/palette.dart';
 import 'package:ZeeU/widgets/chats/chat_card.dart';
 import 'package:ZeeU/widgets/chats/search_bar.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -14,17 +13,6 @@ import 'package:provider/provider.dart';
 extension DateOnlyCompare on DateTime {
   bool isSameDate(DateTime other) {
     return year == other.year && month == other.month && day == other.day;
-  }
-}
-
-extension on Query<Chat> {
-  Query<Chat> search(String pattern) {
-    if (true || pattern.isEmpty) {
-      return orderBy('latest_message_time', descending: true);
-    } else {
-      return where('latest_message_text', isGreaterThanOrEqualTo: pattern)
-          .where('latest_message_text', isLessThanOrEqualTo: pattern);
-    }
   }
 }
 
@@ -38,13 +26,6 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  final chatRef = FirebaseFirestore.instance
-      .collection('chats')
-      .withConverter<Chat>(
-          fromFirestore: (snapshots, _) =>
-              Chat.fromJson(snapshots.data()!, id: snapshots.reference.id),
-          toFirestore: (chat, _) => chat.toJson());
-
   String searchString = '';
 
   @override
@@ -92,14 +73,12 @@ class _ChatPageState extends State<ChatPage> {
                           final chats = snapshot.requireData;
                           chats.sort((a, b) => b.latestMessageTime.compareTo(a.latestMessageTime));
                           final cards = chats
-                              .map<Widget>((c) => FutureBuilder<
-                                      DocumentSnapshot>(
-                                  future: FirebaseFirestore.instance
-                                      .collection('users')
-                                      .doc(user.userType == 'patient'
+                              .map<Widget>((c) => FutureBuilder<AppUser>(
+                                  future: api.users
+                                      .withUid(user.userType == 'patient'
                                           ? c.doctor.uid
                                           : c.patient.uid)
-                                      .get(),
+                                      .once,
                                   builder: (context, snapshot) {
                                     if (snapshot.hasError) {
                                       return Center(
@@ -111,10 +90,8 @@ class _ChatPageState extends State<ChatPage> {
                                       return const Center(
                                           child: CircularProgressIndicator());
                                     }
-
-                                    final data =
-                                        snapshot.requireData.data() as Map;
-                                    final chatUser = AppUser.fromJson(data);
+                                    
+                                    final chatUser = snapshot.requireData;
                                     final chatName =
                                         '${chatUser.firstName} ${chatUser.lastName}';
 
