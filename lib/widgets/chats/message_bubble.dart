@@ -1,8 +1,6 @@
 import 'package:ZeeU/models/appointment.dart';
 import 'package:ZeeU/services/api_socket.dart';
 import 'package:ZeeU/utils/palette.dart';
-import 'package:ZeeU/widgets/cloud_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,7 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class MessageBubble extends StatefulWidget {
-  MessageBubble(
+  const MessageBubble(
       {Key? key,
       required this.content,
       required this.type,
