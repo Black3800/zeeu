@@ -111,13 +111,14 @@ class _HomePageState extends State<HomePage> {
                               var previousAppointmentDate = '';
                               for (var i = 0; i < docs.length; i++) {
                                 final a = docs[i];
-                                final date = _formatAppointmentDate(a.start);
-                                if (date != previousAppointmentDate) {
-                                  appointments
-                                      .add(AppointmentDivider(text: date));
+                                if (a.start.isAfter(DateTime.now())) {
+                                  final date = _formatAppointmentDate(a.start);
+                                  if (date != previousAppointmentDate) {
+                                    appointments.add(AppointmentDivider(text: date));
+                                  }
+                                  appointments.add(a);
+                                  previousAppointmentDate = date;
                                 }
-                                appointments.add(a);
-                                previousAppointmentDate = date;
                               }
 
                               if (appointments.isEmpty) {

@@ -67,13 +67,14 @@ class HistoryPage extends StatelessWidget {
                               var previousAppointmentDate = '';
                               for (var i = 0; i < docs.length; i++) {
                                 final a = docs[i];
-                                final date = DateFormat('yMMMMd').format(a.start);
-                                if (date != previousAppointmentDate) {
-                                  appointments
-                                      .add(AppointmentDivider(text: date));
+                                if (a.start.isBefore(DateTime.now())) {
+                                  final date = DateFormat('yMMMMd').format(a.start);
+                                  if (date != previousAppointmentDate) {
+                                    appointments.add(AppointmentDivider(text: date));
+                                  }
+                                  appointments.add(a);
+                                  previousAppointmentDate = date;
                                 }
-                                appointments.add(a);
-                                previousAppointmentDate = date;
                               }
 
                               if (appointments.isEmpty) {

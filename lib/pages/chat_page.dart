@@ -90,6 +90,7 @@ class _ChatPageState extends State<ChatPage> {
                           }
 
                           final chats = snapshot.requireData;
+                          chats.sort((a, b) => b.latestMessageTime.compareTo(a.latestMessageTime));
                           final cards = chats
                               .map<Widget>((c) => FutureBuilder<
                                       DocumentSnapshot>(
