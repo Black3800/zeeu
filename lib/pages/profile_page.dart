@@ -347,6 +347,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     onFieldSubmitted: (_) =>
                                         _updateProfile(user.uid!)),
                               ),
+                              const SizedBox(height: 50)
                             ],
                           ],
                         ),
