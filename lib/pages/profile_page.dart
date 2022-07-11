@@ -1,7 +1,7 @@
 import 'package:ZeeU/models/user_state.dart';
+import 'package:ZeeU/services/api_socket.dart';
 import 'package:ZeeU/utils/palette.dart';
 import 'package:ZeeU/widgets/cloud_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -43,10 +43,8 @@ class _ProfilePageState extends State<ProfilePage> {
     user.institute =
         _instituteController.text.isNotEmpty ? _instituteController.text : null;
     user.bio = _bioController.text.isNotEmpty ? _bioController.text : null;
-    FirebaseFirestore.instance
-        .collection('users')
-        .doc(id)
-        .update(user.toJson());
+    user.active = true;
+    Provider.of<ApiSocket>(context, listen: false).post.user(user.uid, user.toJson());
   }
 
   @override

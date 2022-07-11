@@ -47,7 +47,11 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Consumer2<UserState, ApiSocket>(
-        builder: (context, user, api, child) => Scaffold(
+        builder: (context, user, api, child) {
+          if (user.firstName == null) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return Scaffold(
             backgroundColor: Colors.transparent,
             body: SingleChildScrollView(
               child: Padding(
@@ -173,7 +177,10 @@ class _HomePageState extends State<HomePage> {
                       const SizedBox(height: 50)
                     ],
                   )),
-            )));
+            )
+          );
+        }
+    );
   }
 
   String _formatAppointmentDate(DateTime date) {

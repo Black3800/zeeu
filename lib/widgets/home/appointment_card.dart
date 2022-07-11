@@ -75,7 +75,7 @@ class AppointmentCard extends StatelessWidget {
                               fit: BoxFit.cover,
                             );
                           }
-                          return const CircularProgressIndicator();
+                          return Container();
                         }),
                   ),
                   const SizedBox(width: 15),
