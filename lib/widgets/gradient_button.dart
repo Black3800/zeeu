@@ -6,11 +6,13 @@ class GradientButton extends StatefulWidget {
   final Function()? onPressed;
   final String? text;
   final MaterialColor? foregroundColor;
+  final bool isLoading;
   const GradientButton({
     Key? key,
     required this.onPressed,
     this.text,
-    this.foregroundColor = Palette.white
+    this.foregroundColor = Palette.white,
+    this.isLoading = false
   }) : super(key: key);
 
   @override
@@ -39,13 +41,20 @@ class _GradientButtonState extends State<GradientButton> {
           elevation: MaterialStateProperty.all(0),
           backgroundColor: MaterialStateProperty.all(Colors.transparent)
         ),
-        child: Text(
-          '${widget.text}',
-          style: GoogleFonts.roboto(
-            fontWeight: FontWeight.w600,
-            color: widget.foregroundColor
-          ),
-        )
+        child: widget.isLoading
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    color: Palette.white,
+                    strokeWidth: 2,
+                  ))
+              : Text(
+                  '${widget.text}',
+                  style: GoogleFonts.roboto(
+                      fontWeight: FontWeight.w600,
+                      color: widget.foregroundColor),
+                )
       ),
     );
   }

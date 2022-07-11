@@ -7,12 +7,14 @@ class FlatRectButton extends StatefulWidget {
   final String? text;
   final MaterialColor? backgroundColor;
   final MaterialColor? foregroundColor;
+  final bool loadOnPressed;
   const FlatRectButton({
     Key? key,
     required this.onPressed,
     this.text,
     this.backgroundColor,
-    this.foregroundColor
+    this.foregroundColor,
+    this.loadOnPressed = false
   }) : super(key: key);
 
   @override
@@ -20,10 +22,15 @@ class FlatRectButton extends StatefulWidget {
 }
 
 class _FlatRectButtonState extends State<FlatRectButton> {
+  bool loading = false;
+
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-        onPressed: widget.onPressed,
+        onPressed: () {
+          if (widget.loadOnPressed) setState(() => loading = true);
+          widget.onPressed?.call();
+        },
         style: ButtonStyle(
             minimumSize: MaterialStateProperty.all(const Size.fromHeight(35)),
             elevation: MaterialStateProperty.all(0),
@@ -36,13 +43,21 @@ class _FlatRectButtonState extends State<FlatRectButton> {
               return widget.backgroundColor ?? Palette.aquamarine;
             })
         ),
-        child: Text(
-          '${widget.text}',
-          style: GoogleFonts.roboto(
-              fontWeight: FontWeight.w600,
-              color: widget.foregroundColor?.shade700 ?? Palette.aquamarine.shade700
-          ),
-        )
+        child: loading
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  color: Palette.white,
+                  strokeWidth: 2,
+                ))
+            : Text(
+                '${widget.text}',
+                style: GoogleFonts.roboto(
+                    fontWeight: FontWeight.w600,
+                    color: widget.foregroundColor?.shade700 ??
+                        Palette.aquamarine.shade700),
+              )
       );
   }
 }

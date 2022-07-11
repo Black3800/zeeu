@@ -11,6 +11,7 @@ import 'package:ZeeU/pages/settings_page.dart';
 import 'package:ZeeU/services/api_socket.dart';
 import 'package:ZeeU/widgets/bottom_navigation.dart';
 import 'package:ZeeU/utils/tab_item.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -65,7 +66,11 @@ class AppState extends State<App> {
 
   Future<void> _fetchCurrentUser() async {
     final credential = FirebaseAuth.instance.currentUser;
-    final user = await Provider.of<ApiSocket>(context, listen: false).users.withUid(credential?.uid).once;
+    final doc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc('${credential?.uid}')
+        .get();
+    final user = AppUser.fromJson(doc.data() ?? {});
     user.uid = credential?.uid;
     user.email = credential?.email;
     Provider.of<UserState>(context, listen: false).updateUser(user);

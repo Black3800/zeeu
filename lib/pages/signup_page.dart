@@ -146,6 +146,7 @@ class _SignupPageState extends State<SignupPage> {
                                   text: _isNotLastStep ? 'Next' : 'Finish',
                                   backgroundColor: _isNotLastStep ? null : Palette.ultramarine,
                                   foregroundColor: _isNotLastStep ? null : Palette.white,
+                                  loadOnPressed: !_isNotLastStep,
                                 ),
                                 const SizedBox(height: 15),
                                 Container(

@@ -51,7 +51,7 @@ class _LoginPageState extends State<LoginPage> {
 
       FirebaseAuth.instance.idTokenChanges().listen((user) async {
         final token = await user?.getIdToken();
-        api.verifyTokenOnly(token!);
+        if (token != null) api.verifyTokenOnly(token);
       });
 
       Provider.of<UserState>(context, listen: false).updateUser(user);
@@ -157,7 +157,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               const SizedBox(height: 70),
                               GradientButton(
-                                  onPressed: handleLogin, text: 'Login'),
+                                  onPressed: handleLogin, text: 'Login', isLoading: isSubmitted),
                               const SizedBox(height: 30),
                               InkWell(
                                 onTap: () {
