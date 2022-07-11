@@ -57,18 +57,26 @@ class BottomNavigation extends StatelessWidget {
                 topLeft: Radius.circular(12),
                 topRight: Radius.circular(12),
               ),
-              color:
-                  _isCurrentTab(tabItem) ? Palette.white : Colors.transparent),
+              color: _isCurrentTab(tabItem) ? null : Colors.transparent,
+              gradient: _isCurrentTab(tabItem)
+                  ? const LinearGradient(colors: [
+                      Color.fromARGB(255, 255, 255, 255),
+                      Color.fromARGB(255, 242, 242, 242)
+                    ], begin: Alignment.topLeft, end: Alignment.bottomRight)
+                  : null),
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             Icon(tabIcons[tabItem],
                 color: _isCurrentTab(tabItem)
                     ? activeTabColor[tabItem]
                     : Palette.gray),
+            const SizedBox(height: 5),
             Text(tabName[tabItem]!,
                 style: GoogleFonts.roboto(
                     color: _isCurrentTab(tabItem)
                         ? activeTabColor[tabItem]
-                        : Palette.gray))
+                        : Palette.gray,
+                    fontWeight: _isCurrentTab(tabItem) ? FontWeight.w700 : FontWeight.w500
+                        ))
           ])),
     ));
   }
