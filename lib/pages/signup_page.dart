@@ -1,4 +1,5 @@
 import 'package:ZeeU/models/signup_state.dart';
+import 'package:ZeeU/services/api_socket.dart';
 import 'package:ZeeU/utils/constants.dart';
 import 'package:ZeeU/utils/palette.dart';
 import 'package:ZeeU/widgets/flat_rect_button.dart';
@@ -6,7 +7,6 @@ import 'package:ZeeU/widgets/signup/login_details.dart';
 import 'package:ZeeU/widgets/signup/personal_info.dart';
 import 'package:ZeeU/widgets/signup/profession_info.dart';
 import 'package:ZeeU/widgets/signup/select_type.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -28,9 +28,11 @@ class _SignupPageState extends State<SignupPage> {
   Future<void> _handleSignup() async {
     try {
       await FirebaseAuth.instance.currentUser?.delete();
-      final SignupState detail = Provider.of<SignupState>(context, listen: false);
+      final detail = Provider.of<SignupState>(context, listen: false);
+      final api = Provider.of<ApiSocket>(context, listen: false);
       final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: detail.email!, password: detail.password!);
-      await FirebaseFirestore.instance.collection('users').doc(credential.user!.uid).set({
+      await api.verifyTokenOnly(await credential.user!.getIdToken());
+      await api.post.user(credential.user!.uid, {
         'user_type': detail.userType,
         'first_name': detail.firstName,
         'last_name': detail.lastName,
@@ -41,10 +43,10 @@ class _SignupPageState extends State<SignupPage> {
         'contact': detail.userType == 'doctor' ? detail.contact : null,
         'specialty': detail.userType == 'doctor' ? detail.specialty ?? 'General' : null,
         'bio': detail.userType == 'doctor' ? detail.bio : null,
-        'active': false
+        'active': true
       });
-      Provider.of<SignupState>(context, listen: false).dispose();
-      FirebaseAuth.instance.signOut();
+      await api.fetchUser();
+      detail.dispose();
     } on FirebaseAuthException catch (e) {
       switch (e.code) {
         case "provider-already-linked":

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ZeeU/models/app_user.dart';
 import 'package:ZeeU/models/appointment.dart';
 import 'package:ZeeU/models/user_state.dart';
@@ -35,6 +37,12 @@ class _HomePageState extends State<HomePage> {
           fromFirestore: (snapshots, _) =>
               Appointment.fromJson(snapshots.data()!),
           toFirestore: (appointment, _) => appointment.toJson());
+
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<ApiSocket>(context, listen: false).ensureSubscribed();
+  }
 
   @override
   Widget build(BuildContext context) {

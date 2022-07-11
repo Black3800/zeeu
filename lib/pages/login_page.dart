@@ -35,7 +35,7 @@ class _LoginPageState extends State<LoginPage> {
 
       final token = await credential.user?.getIdToken();
       final api = Provider.of<ApiSocket>(context, listen: false);
-      final verifySuccess = await api.verifyToken(token!);
+      final verifySuccess = await api.verifyTokenAndSubscribe(token!);
 
       if (!verifySuccess) {
         throw Exception('Token verification failed');
@@ -51,7 +51,7 @@ class _LoginPageState extends State<LoginPage> {
 
       FirebaseAuth.instance.idTokenChanges().listen((user) async {
         final token = await user?.getIdToken();
-        api.verifyToken(token!);
+        api.verifyTokenOnly(token!);
       });
 
       Provider.of<UserState>(context, listen: false).updateUser(user);

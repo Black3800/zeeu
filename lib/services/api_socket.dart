@@ -11,12 +11,14 @@ import 'package:web_socket_channel/io.dart';
 
 class ApiSocket {
   final channel = IOWebSocketChannel.connect(Uri.parse(Constants.apiUri));
-  final Map<String,String> subscriptions = {};
   late String idToken;
   late Stream<Map> decoded;
   late ChatCollectionSocket chats;
   late AppointmentCollectionSocket appointments;
   late UserCollectionSocket users;
+  late PostInterface post;
+  bool subscribed = false;
+  bool ensured = false;
 
   Stream<Map> get ping async* {
     await for (final ping in decoded) {
@@ -29,32 +31,54 @@ class ApiSocket {
     chats = ChatCollectionSocket(decoded, emit);
     appointments = AppointmentCollectionSocket(decoded, emit);
     users = UserCollectionSocket(decoded, emit);
+    post = PostInterface(decoded, emit);
     if (token != null && token.isNotEmpty) {
-      verifyToken(token);
+      verifyTokenAndSubscribe(token);
     }
   }
 
-  Future<bool> verifyToken(String token) async {
+  Future<bool> verifyTokenAndSubscribe(String token) async {
+    await verifyTokenOnly(token);
+    subscribeOnly();
+    return true;
+  }
+
+  Future<bool> verifyTokenOnly(String token) async {
     print('verifying $token');
     emit('verify', {'token': token});
     idToken = token;
     await for (final message in decoded) {
-      if (message['event'] == 'verify-success') {
-        chats.subscribe();
-        appointments.subscribe();
-        break;
-      }
+      if (message['event'] == 'verify-success') break;
     }
-    decoded.listen((message) {
-      if (message['event'] == 'subscribe-success') {
-        subscriptions[message['data']['ref']] = message['data']['sid'];
-      }
-    });
+    return true;
+  }
+
+  subscribeOnly() {
+    chats.subscribe();
+    appointments.subscribe();
+    subscribed = true;
+  }
+
+  ensureSubscribed() async {
+    if (!subscribed && !ensured) {
+      ensured = true;
+      await fetchUser();
+      subscribeOnly();
+    }
+  }
+
+  Future<bool> fetchUser() async {
+    emit('fetch', null);
+    await for (final message in decoded) {
+      if (message['event'] == 'fetch-success') break;
+    }
     return true;
   }
 
   logout() {
     emit('logout', null);
+    subscribed = false;
+    ensured = false;
   }
 
   emit(String type, Map<String, Object>? params) {
@@ -82,7 +106,9 @@ class AppointmentCollectionSocket extends CollectionSocket {
   AppointmentCollectionSocket(_upstream, _emit) : super(_upstream, _emit);
 
   Stream<List<Appointment>> get stream async* {
-    print('listening to apppointments');
+    if (_latest != null) {
+      yield _latest!;
+    }
     await for (final message in _upstream) {
       if (message['event'] == 'appointments') {
         List<Appointment> appointments = _toAppointmentList(message['data']);
@@ -254,5 +280,23 @@ class UserCollectionSocket extends CollectionSocket {
 
   UserDocumentSocket withUid(uid) {
     return UserDocumentSocket(uid, _upstream, _emit);
+  }
+}
+
+class PostInterface extends CollectionSocket {
+  PostInterface(_upstream, _emit) : super(_upstream, _emit);
+
+  Future<bool> user(uid, user) async {
+    _emit('post', {
+        'collection': 'user',
+        'uid': uid,
+        'ref': 'post user $uid',
+        'user': user
+    });
+
+    await _upstream.firstWhere((message) =>
+        message['event'] == 'post-success' &&
+        message['data']['ref'] == 'post user $uid');
+    return true;
   }
 }

@@ -14,7 +14,7 @@ class _SignupSuccessPageState extends State<SignupSuccessPage> {
   @override
   void initState() {
     Timer(const Duration(seconds: 2),
-        () => Navigator.of(context).popUntil(ModalRoute.withName('/login')));
+        () => Navigator.of(context).pushReplacementNamed('/app'));
     super.initState();
   }
 
