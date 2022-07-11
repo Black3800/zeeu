@@ -162,6 +162,14 @@ class ChatCollectionSocket extends CollectionSocket {
     return MessageCollectionSocket(id, _upstream, _emit);
   }
 
+  Future<String> withDoctor(doctor) async {
+    final ref = const Uuid().v4();
+    _emit('get', {'collection': 'chatId', 'ref': ref, 'doctor': doctor});
+    final message = await _upstream.firstWhere((message) =>
+        message['event'] == 'get-success' && message['data']['ref'] == ref);
+    return message['data']['content'];
+  }
+
   subscribe() {
     _emit('subscribe', {'collection': 'chats', 'ref': 'chats'});
   }

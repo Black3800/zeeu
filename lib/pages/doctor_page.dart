@@ -38,10 +38,7 @@ class _DoctorPageState extends State<DoctorPage> {
           fromFirestore: (snapshots, _) => AppUser.fromJson(snapshots.data()!),
           toFirestore: (usr, _) => usr.toJson());
 
-  Future<void> createChat(
-      {required BuildContext ctx,
-      required String doctorUid,
-      required String patientUid}) async {
+  Future<void> createChat({required BuildContext ctx, required String doctorUid}) async {
     final confirm = await showDialog<bool>(
         context: context,
         useRootNavigator: false,
@@ -58,14 +55,7 @@ class _DoctorPageState extends State<DoctorPage> {
 
     if (!(confirm ?? true)) return;
 
-    await FirebaseFirestore.instance.collection('chats').add({
-      'doctor': doctorUid,
-      'patient': patientUid,
-      'latest_message_text': '',
-      'latest_message_time': Timestamp.now(),
-      'latest_message_seen_doctor': false,
-      'latest_message_seen_patient': false
-    });
+    await Provider.of<ApiSocket>(context, listen: false).chats.withDoctor(doctorUid);
 
     widget.changeTab(TabItem.chats);
   }
@@ -115,22 +105,25 @@ class _DoctorPageState extends State<DoctorPage> {
 
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 20.0),
-                          child: Column(
-                                  children: doctors
-                                      .map((e) => DoctorCard(
-                                            image: e.img!,
-                                            name: '${e.firstName} ${e.lastName}',
-                                            specialty: e.specialty!,
-                                            institute: e.institute!,
-                                            contact: e.contact!,
-                                            onTap: user.userType == 'patient'
-                                                ? (ctx) => createChat(
-                                                    ctx: ctx,
-                                                    doctorUid: e.uid!,
-                                                    patientUid: user.uid!)
-                                                : null,
-                                          ))
-                                      .toList()),
+                          child: SingleChildScrollView(
+                            child: Column(
+                                    children: [
+                                      if(user.userType == 'patient') const Text('Tap to chat'),
+                                      ...doctors
+                                        .map((e) => DoctorCard(
+                                              image: e.img!,
+                                              name: '${e.firstName} ${e.lastName}',
+                                              specialty: e.specialty!,
+                                              institute: e.institute!,
+                                              contact: e.contact!,
+                                              onTap: user.userType == 'patient'
+                                                  ? (ctx) => createChat(
+                                                      ctx: ctx,
+                                                      doctorUid: e.uid!)
+                                                  : null,
+                                            ))
+                                        .toList()]),
+                          ),
                         );
                       },
                     )))));
