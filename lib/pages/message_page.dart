@@ -9,7 +9,6 @@ import 'package:ZeeU/utils/palette.dart';
 import 'package:ZeeU/widgets/chats/message_bar.dart';
 import 'package:ZeeU/widgets/chats/message_bubble.dart';
 import 'package:ZeeU/widgets/cloud_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -37,16 +36,9 @@ class MessagePage extends StatefulWidget {
 }
 
 class _MessagePageState extends State<MessagePage> {
-  final userRef = FirebaseFirestore.instance
-      .collection('users')
-      .withConverter<AppUser>(
-          fromFirestore: (snapshots, _) =>
-              AppUser.fromJson(snapshots.data()!, uid: snapshots.reference.id),
-          toFirestore: (user, _) => user.toJson());
   final controller = TextEditingController();
   final itemScrollController = ItemScrollController();
   final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
-  late CollectionReference<Message> messageRef;
   late UserDocumentSocket interlocutor;
   late MessageCollectionSocket messageCollection;
 
@@ -105,66 +97,30 @@ class _MessagePageState extends State<MessagePage> {
             ));
   }
 
-  Future<void> _sendText({required String text, required String sendAs}) async {
+  Future<void> _sendText({required String text}) async {
     if (text.isEmpty) return;
-    final msgTime = DateTime.now();
-    await messageRef.add(Message(
-        isFromDoctor: sendAs == 'doctor',
-        type: 'text',
-        content: text,
-        time: msgTime));
-    _updateLatestMessage(text: text, time: msgTime);
+    Provider.of<ApiSocket>(context, listen: false)
+        .post
+        .message(widget.chat.id, 'text', text);
   }
 
-  Future<void> _sendImage(
-      {required String path, required String sendAs}) async {
+  Future<void> _sendImage({required String path}) async {
     if (path.isEmpty) return;
-    final msgTime = DateTime.now();
-    await messageRef.add(Message(
-        isFromDoctor: sendAs == 'doctor',
-        type: 'image',
-        content: path,
-        time: msgTime));
-    _updateLatestMessage(text: 'Photo', time: msgTime);
+    Provider.of<ApiSocket>(context, listen: false)
+        .post
+        .message(widget.chat.id, 'image', path);
   }
 
-  Future<void> _makeAppointment(
-      {required DateTime start,
-      required DateTime end,
-      required String doctorUid,
-      required String patientUid}) async {
-    final msgTime = DateTime.now();
-    final appointment =
-        await FirebaseFirestore.instance.collection('appointments').add({
-      'doctor': doctorUid,
-      'patient': patientUid,
-      'start': Timestamp.fromDate(start),
-      'end': Timestamp.fromDate(end)
-    });
-    await messageRef.add(Message(
-        isFromDoctor: true,
-        type: 'appointment',
-        content: appointment.id,
-        time: msgTime));
-    _updateLatestMessage(
-        text: "Appointment on ${DateFormat('yMMMd').add_Hm().format(start)}",
-        time: msgTime);
-  }
-
-  void _updateLatestMessage({required String text, required DateTime time}) {
-    FirebaseFirestore.instance.collection('chats').doc(widget.chat.id).update({
-      'latest_message_text': text,
-      'latest_message_time': Timestamp.fromDate(time),
-      'latest_message_seen_doctor': false,
-      'latest_message_seen_patient': false
-    });
+  Future<void> _makeAppointment({required DateTime start, required DateTime end}) async {
+    Provider.of<ApiSocket>(context, listen: false)
+        .post
+        .appointment(widget.chat.id, start, end);
   }
 
   void _seenLatestMessage(String userType) {
-    FirebaseFirestore.instance
-        .collection('chats')
-        .doc(widget.chat.id)
-        .update({'latest_message_seen_$userType': true});
+    Provider.of<ApiSocket>(context, listen: false)
+        .post
+        .seenLatestMessage(widget.chat.id);
   }
 
   void _scrollDown(index) {
@@ -179,14 +135,6 @@ class _MessagePageState extends State<MessagePage> {
   @override
   void initState() {
     super.initState();
-    messageRef = FirebaseFirestore.instance
-        .collection('chats')
-        .doc(widget.chat.id)
-        .collection('messages')
-        .withConverter<Message>(
-            fromFirestore: (snapshots, _) =>
-                Message.fromJson(snapshots.data()!),
-            toFirestore: (msg, _) => msg.toJson());
     interlocutor = Provider.of<ApiSocket>(context, listen: false)
                       .users.withUid(
                         Provider.of<UserState>(context, listen: false)
@@ -378,18 +326,14 @@ class _MessagePageState extends State<MessagePage> {
                           textController: controller,
                           onSubmitText: () async {
                             FocusScope.of(context).unfocus();
-                            await _sendText(
-                                text: controller.text, sendAs: user.userType!);
+                            await _sendText(text: controller.text);
                             controller.clear();
                           },
-                          onSubmitImage: (path) =>
-                              _sendImage(path: path, sendAs: user.userType!),
+                          onSubmitImage: (path) => _sendImage(path: path),
                           onSubmitAppointment: user.userType == 'doctor'
                               ? (start, end) => _makeAppointment(
                                   start: start,
-                                  end: end,
-                                  doctorUid: user.uid!,
-                                  patientUid: widget.chat.patient.uid!)
+                                  end: end)
                               : null,
                         )
                       ],

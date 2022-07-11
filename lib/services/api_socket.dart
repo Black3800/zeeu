@@ -299,4 +299,42 @@ class PostInterface extends CollectionSocket {
         message['data']['ref'] == 'post user $uid');
     return true;
   }
+
+  Future<bool> message(chatId, type, content) async {
+    _emit('post', {
+      'collection': 'message',
+      'chatId': chatId,
+      'ref': 'post message $chatId',
+      'type': type,
+      'content': content
+    });
+
+    await _upstream.firstWhere((message) =>
+        message['event'] == 'post-success' &&
+        message['data']['ref'] == 'post message $chatId');
+    return true;
+  }
+
+  seenLatestMessage(chatId) {
+    _emit('post', {
+      'collection': 'seen',
+      'chatId': chatId,
+      'ref': 'seen $chatId'
+    });
+  }
+
+  Future<bool> appointment(chatId, DateTime start, DateTime end) async {
+    _emit('post', {
+      'collection': 'appointment',
+      'chatId': chatId,
+      'ref': 'post appointment $chatId',
+      'start': start.toIso8601String(),
+      'end': end.toIso8601String()
+    });
+
+    await _upstream.firstWhere((message) =>
+        message['event'] == 'post-success' &&
+        message['data']['ref'] == 'post appointment $chatId');
+    return true;
+  }
 }
